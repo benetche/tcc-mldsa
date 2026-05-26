@@ -51,4 +51,7 @@ Detalhes: [.cursor/context/cenarios-experimentais.md](.cursor/context/cenarios-e
 
 ## Status
 
-Projeto em fase de **organização inicial** — ver [registro de progresso](.cursor/roadmap/ROADMAP.md#registro-de-progresso).
+Branch ativa: **`feat/f1-pilar-1-infra`** — F0/F1/F2 documentados; Fabric baseline + cliente Pi (C1) em implementação.  
+ESP32 pendente — [hardware-status.md](docs/hardware-status.md).
+
+[Registro de progresso](.cursor/roadmap/ROADMAP.md#registro-de-progresso)
