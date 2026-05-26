@@ -1,0 +1,5 @@
+profile: hospital-low
+description: Carga moderada — validação e paridade entre cenários
+interval_ms: 500
+burst_size: 1
+duration_minutes: 10

@@ -1,0 +1,10 @@
+scenario_id: C4
+network: mldsa
+device: esp32
+signing_mode: esp32_direct
+signing_mode_fallback: esp32_payload_only
+load_profiles:
+  - hospital-low
+  - hospital-high
+repetitions: 30
+warmup_transactions: 20

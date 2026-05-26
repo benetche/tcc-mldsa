@@ -1,0 +1,5 @@
+profile: hospital-high
+description: Alta frequência — simulação de monitoramento contínuo em UTI
+interval_ms: 100
+burst_size: 3
+duration_minutes: 15

@@ -1,0 +1,9 @@
+scenario_id: C1
+network: baseline
+device: raspberry-pi
+signing_mode: pi_client
+load_profiles:
+  - hospital-low
+  - hospital-high
+repetitions: 30
+warmup_transactions: 50
