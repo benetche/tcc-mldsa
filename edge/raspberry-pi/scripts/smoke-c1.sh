@@ -7,7 +7,11 @@ PI_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 if [[ -f "${PI_ROOT}/config.env" ]]; then
   # shellcheck disable=SC1091
   source "${PI_ROOT}/config.env"
+elif [[ -f "${SCRIPT_DIR}/export-fabric-env.sh" ]]; then
+  # shellcheck disable=SC1091
+  source "${SCRIPT_DIR}/export-fabric-env.sh"
 fi
 
 cd "${PI_ROOT}"
+export REPO_ROOT="$(cd "${PI_ROOT}/../.." && pwd)"
 go run ./cmd/submit-observation/

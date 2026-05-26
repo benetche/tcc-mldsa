@@ -6,6 +6,7 @@ Rede **Hyperledger Fabric** permissionada de laboratório — perfil **baseline*
 
 - Docker + Docker Compose
 - Git, curl, Go 1.22+
+- **jq** — `sudo apt install jq` ou `./scripts/ensure-jq.sh` (baixa em `bin/`)
 - ~8 GB disco para `fabric-samples` (clone local)
 
 ## Setup rápido
@@ -22,8 +23,9 @@ cp .env.example .env
 # 3. Subir rede e canal iomtchannel
 ./scripts/network-up.sh
 
-# 4. Deploy chaincode iomt
+# 4. Deploy chaincode iomt (CCAAS — evita docker build dentro do peer)
 ./scripts/deploy-chaincode.sh
+# Modo clássico (pode falhar com "broken pipe" no Docker): DEPLOY_MODE=legacy ./scripts/deploy-chaincode.sh
 
 # 5. Teste invoke/query
 ./scripts/test-chaincode.sh
@@ -53,8 +55,8 @@ Ver `.env.example`: `FABRIC_SAMPLES_DIR`, `CHANNEL_NAME`, `CHAINCODE_NAME`.
 
 ## Raspberry Pi
 
-Cliente em `edge/raspberry-pi/` — cenário **C1**.  
-Requer connection profile exportado do test-network (ver README do Pi).
+Cliente em `edge/raspberry-pi/` — cenário **C1** (`./scripts/smoke-c1.sh`).  
+Modo padrão: **peer-cli** (dois endossos). Opcional: Fabric Gateway (`IOMT_SUBMIT_MODE=gateway` + `/etc/hosts` via `setup-hosts.sh`).
 
 ## Versões
 

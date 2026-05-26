@@ -8,6 +8,9 @@ wallet/
 organizations/*/peerOrganizations/*/users/**/msp/keystore/*
 !**/.gitkeep
 
+# jq baixado localmente (ensure-jq.sh)
+fabric/baseline/bin/jq
+
 # Fabric gerado localmente
 fabric/baseline/organizations/
 fabric/baseline/channel-artifacts/

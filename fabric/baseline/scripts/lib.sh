@@ -5,6 +5,11 @@ set -euo pipefail
 BASELINE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO_ROOT="$(cd "${BASELINE_ROOT}/../.." && pwd)"
 
+# jq local (sem sudo) — ver scripts/ensure-jq.sh
+if [[ -x "${BASELINE_ROOT}/bin/jq" ]]; then
+  export PATH="${BASELINE_ROOT}/bin:${PATH}"
+fi
+
 if [[ -f "${BASELINE_ROOT}/.env" ]]; then
   # shellcheck disable=SC1091
   source "${BASELINE_ROOT}/.env"

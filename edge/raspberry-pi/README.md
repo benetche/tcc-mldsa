@@ -19,19 +19,21 @@ Dispositivo de borda que submete observações ao chaincode **`iomt`** na rede F
 
 1. Subir Fabric no host de lab: `fabric/baseline/scripts/network-up.sh` + `deploy-chaincode.sh`
 2. Copiar credenciais ou montar `fabric-samples` no Pi
-3. Configurar variáveis:
+3. Configurar variáveis (automático a partir do test-network):
 
 ```bash
-cp config.example.env config.env
-# Editar caminhos e FABRIC_PEER_ENDPOINT (IP do host Docker)
-source config.env
+source scripts/export-fabric-env.sh
+# Ou: cp config.example.env config.env e editar manualmente
 ```
 
 ## Smoke test C1
 
 ```bash
+# Requer fabric/baseline rede + chaincode implantados
 ./scripts/smoke-c1.sh
 ```
+
+Saída esperada: JSON com `"client": "peer-cli"` e `latency_ms`.
 
 Saída JSON: `observation`, `latency_ms`, `ledger`.
 

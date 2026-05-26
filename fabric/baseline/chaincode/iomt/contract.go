@@ -3,7 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
 
+	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
@@ -68,9 +71,27 @@ func (c *IoMTContract) ReadObservation(ctx contractapi.TransactionContextInterfa
 func main() {
 	chaincode, err := contractapi.NewChaincode(&IoMTContract{})
 	if err != nil {
-		panic(err)
+		log.Panicf("erro ao criar chaincode iomt: %v", err)
 	}
+
+	// Chaincode-as-a-Service (deployCCAAS / Docker no host)
+	if addr := os.Getenv("CHAINCODE_SERVER_ADDRESS"); addr != "" {
+		server := &shim.ChaincodeServer{
+			CCID:    os.Getenv("CHAINCODE_ID"),
+			Address: addr,
+			CC:      chaincode,
+			TLSProps: shim.TLSProperties{
+				Disabled: true,
+			},
+		}
+		if err := server.Start(); err != nil {
+			log.Panicf("erro ao iniciar chaincode iomt (ccaas): %v", err)
+		}
+		return
+	}
+
+	// Modo clássico (peer inicia o chaincode em container)
 	if err := chaincode.Start(); err != nil {
-		panic(err)
+		log.Panicf("erro ao iniciar chaincode iomt: %v", err)
 	}
 }
