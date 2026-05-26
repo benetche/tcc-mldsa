@@ -1,0 +1,53 @@
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+wallet/
+organizations/*/peerOrganizations/*/users/**/msp/keystore/*
+!**/.gitkeep
+
+# Fabric gerado localmente
+fabric/baseline/organizations/
+fabric/baseline/channel-artifacts/
+fabric/baseline/system-genesis-block/
+fabric/baseline/logs/
+fabric/mldsa/organizations/
+fabric/mldsa/channel-artifacts/
+
+# fabric-samples (clone local opcional)
+fabric-samples/
+
+# Go
+vendor/
+**/bin/
+**/*.test
+
+# Python
+__pycache__/
+.venv/
+*.pyc
+
+# Build embarcado
+edge/esp32/build/
+edge/esp32/sdkconfig.old
+.pio/
+
+# Benchmarks (dados brutos)
+benchmarks/results/*
+!benchmarks/results/.gitkeep
+
+# MIMIC-IV (nunca versionar dados reais)
+health-data/mimic/raw/
+*.csv
+*.parquet
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Logs
+*.log
