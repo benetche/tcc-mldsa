@@ -19,7 +19,8 @@ export FABRIC_SAMPLES_DIR="${FABRIC_SAMPLES_DIR:-${REPO_ROOT}/fabric-samples}"
 export CHANNEL_NAME="${CHANNEL_NAME:-iomtchannel}"
 export CHAINCODE_NAME="${CHAINCODE_NAME:-iomt}"
 export CHAINCODE_VERSION="${CHAINCODE_VERSION:-1.0}"
-export CC_SEQUENCE="${CC_SEQUENCE:-1}"
+# auto = detecta próxima sequence no canal; ou número fixo (ex.: 2)
+export CC_SEQUENCE="${CC_SEQUENCE:-auto}"
 export FABRIC_NETWORK="${FABRIC_NETWORK:-baseline}"
 
 test_network_dir() {

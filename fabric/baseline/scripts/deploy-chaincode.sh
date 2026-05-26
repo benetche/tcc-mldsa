@@ -15,7 +15,15 @@ export FABRIC_CFG_PATH="${TN}/../config/"
 
 CC_SRC="${BASELINE_ROOT}/chaincode/iomt"
 
-echo "[network=baseline] Deploy chaincode ${CHAINCODE_NAME} (modo=${DEPLOY_MODE})..."
+# Sequence automática se já existir definição commitada (evita erro "must be sequence 2")
+export CC_SEQUENCE="$("${SCRIPT_DIR}/resolve-cc-sequence.sh")"
+
+echo "[network=baseline] Deploy chaincode ${CHAINCODE_NAME} (modo=${DEPLOY_MODE}, sequence=${CC_SEQUENCE})..."
+
+# Containers CCAAS da execução anterior (mesmo nome) impedem novo start
+if [[ "${DEPLOY_MODE}" == "ccaas" ]]; then
+  docker rm -f "peer0org1_${CHAINCODE_NAME}_ccaas" "peer0org2_${CHAINCODE_NAME}_ccaas" 2>/dev/null || true
+fi
 
 cd "${TN}"
 

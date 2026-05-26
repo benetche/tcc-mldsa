@@ -34,6 +34,17 @@ cp .env.example .env
 ./scripts/health-check.sh
 ```
 
+## Redeploy do chaincode
+
+Se `iomt` já foi commitado (sequence 1), um novo `./scripts/deploy-chaincode.sh` usa **sequence 2** automaticamente (`CC_SEQUENCE=auto`).
+
+Erro típico se forçar sequence antiga:
+`requested sequence is 1, but new definition must be sequence 2`
+
+Para primeiro deploy apenas: `CC_SEQUENCE=1 ./scripts/deploy-chaincode.sh`
+
+Se o chaincode **já funciona**, não é necessário redeploy — use `./scripts/test-chaincode.sh`.
+
 ## Encerrar rede
 
 ```bash
