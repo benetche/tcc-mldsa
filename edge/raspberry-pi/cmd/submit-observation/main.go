@@ -27,15 +27,19 @@ func main() {
 	if err != nil {
 		fatal("key", err)
 	}
-	id, err := identity.NewX509Identity(cfg.MSPID, string(certPEM))
+	certificate, err := identity.CertificateFromPEM(certPEM)
+	if err != nil {
+		fatal("certificate", err)
+	}
+	id, err := identity.NewX509Identity(cfg.MSPID, certificate)
 	if err != nil {
 		fatal("identity", err)
 	}
-	key, err := identity.NewPrivateKeyFromPEM(keyPEM)
+	privateKey, err := identity.PrivateKeyFromPEM(keyPEM)
 	if err != nil {
 		fatal("private key", err)
 	}
-	sign, err := identity.NewSigner(key, hash.SHA256)
+	sign, err := identity.NewPrivateKeySign(privateKey)
 	if err != nil {
 		fatal("signer", err)
 	}
@@ -52,10 +56,7 @@ func main() {
 	}
 	defer gw.Close()
 
-	network, err := gw.GetNetwork(cfg.Channel)
-	if err != nil {
-		fatal("network", err)
-	}
+	network := gw.GetNetwork(cfg.Channel)
 	contract := network.GetContract(cfg.Chaincode)
 
 	obsID := fmt.Sprintf("pi-%d", time.Now().UnixNano())
