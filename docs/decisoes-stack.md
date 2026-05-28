@@ -9,6 +9,7 @@
 | Blockchain | definido | Hyperledger Fabric 2.5 LTS |
 | PQC | definido | ML-DSA-65 (Dilithium3) via liboqs + BCCSP (Pilar 2) |
 | Dados | definido | MIMIC-IV + FHIR R4 (Pilar 3) |
+| Monitoramento | definido (opc.) | Prometheus + Grafana; ESP32 via MQTT (Pilar 5) |
 | Raspberry Pi | em uso | C1/C2 — único hardware disponível |
 | ESP32 | pendente | C3/C4 — ver [hardware-status.md](./hardware-status.md) |
 
@@ -87,6 +88,8 @@ Validação de fechamento: `fabric/mldsa/scripts/close-pilar-2.sh`.
 
 **Escopo MIMIC (inicial):** sinais vitais em `chartevents` / `vitalsign` conforme disponibilidade após credenciamento.
 
+**Implementado (P3):** `health-data/` (mappings, fixtures, schema JSON), `scripts/ingestion/` (`ingest_hospital.py`, perfis `hospital-low`/`hospital-high`), chaincode `RegisterFhirObservation`. Acesso MIMIC: `docs/mimic-acesso.md`.
+
 ---
 
 ## 5. Stack Raspberry Pi
@@ -127,8 +130,27 @@ Ver [cenarios-experimentais.md](../.cursor/context/cenarios-experimentais.md) �
 
 ---
 
+## 9. Monitoramento em tempo real (Pilar 5 — opcional)
+
+| Item | Escolha |
+|------|---------|
+| Visualização | **Grafana** (dashboards, refresh 5–15 s) |
+| Séries temporais | **Prometheus** |
+| Host / Raspberry Pi | **node_exporter** (CPU, RAM, disco, rede) |
+| Containers Fabric | **cAdvisor** (métricas Docker) |
+| ESP32-D | **MQTT** (Mosquitto) + **Telegraf** (`mqtt_consumer` → Prometheus) |
+
+**Justificativa:** Prometheus e Grafana têm suporte **arm64** no Pi e são padrão de mercado para o capítulo de Resultados. O ESP32 não roda stack de observabilidade; publica métricas leves via MQTT, padrão usual em IoT.
+
+**Não escopo:** SaaS (Datadog), APM enterprise, exposição à internet.
+
+**Implementação:** `monitoring/` · [arquitetura-observabilidade.md](../monitoring/docs/arquitetura-observabilidade.md) · task [12-monitoramento-observabilidade.md](../.cursor/tasks/12-monitoramento-observabilidade.md).
+
+---
+
 ## Histórico
 
 | Data | Alteração |
 |------|-----------|
 | 2026-05-26 | Documento inicial F1 — Fabric 2.5, Pi ativo, ESP32 pendente |
+| 2026-05-28 | Pilar 5 opcional — Prometheus + Grafana + MQTT/Telegraf (ESP32) |

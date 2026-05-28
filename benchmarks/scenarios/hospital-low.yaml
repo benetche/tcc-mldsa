@@ -3,3 +3,6 @@ description: Carga moderada — validação e paridade entre cenários
 interval_ms: 500
 burst_size: 1
 duration_minutes: 10
+ingestion_script: scripts/ingestion/ingest_hospital.py
+data_source_default: SYNTHETIC
+target_function: RegisterFhirObservation

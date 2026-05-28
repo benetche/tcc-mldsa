@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "IoMT FHIR Observation (subset R4)",
+  "type": "object",
+  "required": ["resourceType", "id", "status", "code", "subject", "effectiveDateTime", "valueQuantity"],
+  "properties": {
+    "resourceType": { "const": "Observation" },
+    "id": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["final", "preliminary"] },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "tag": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["code"],
+            "properties": { "code": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "category": { "type": "array" },
+    "code": {
+      "type": "object",
+      "required": ["coding"],
+      "properties": {
+        "coding": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["system", "code", "display"],
+            "properties": {
+              "system": { "type": "string" },
+              "code": { "type": "string" },
+              "display": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "required": ["reference"],
+      "properties": { "reference": { "type": "string" } }
+    },
+    "effectiveDateTime": { "type": "string" },
+    "valueQuantity": {
+      "type": "object",
+      "required": ["value", "unit", "system", "code"],
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string" },
+        "system": { "type": "string" },
+        "code": { "type": "string" }
+      }
+    },
+    "device": {
+      "type": "object",
+      "properties": { "reference": { "type": "string" } }
+    }
+  }
+}

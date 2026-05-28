@@ -34,6 +34,7 @@ export FABRIC_NETWORK=baseline  # ou mldsa
 | `health-data/` | Mappings MIMIC, fixtures FHIR |
 | `edge/` | Raspberry Pi, ESP32 |
 | `benchmarks/` | Scripts e relatórios |
+| `monitoring/` | P5 opcional: Prometheus, Grafana, Telegraf |
 | `.cursor/tasks/` | Checklists por fase |
 
 ## Ordem de trabalho

@@ -56,7 +56,10 @@ Se o chaincode **já funciona**, não é necessário redeploy — use `./scripts
 | Função | Descrição |
 |--------|-----------|
 | `RegisterObservation` | Grava observação IoMT (+ signAlg, deviceSignature opcionais na borda) |
+| `RegisterFhirObservation` | Observação FHIR (patientId, LOINC, hash/payload, dataSource) — Pilar 3 |
 | `ReadObservation` | Consulta por id |
+
+Ingestão: `scripts/ingestion/run-ingest-smoke.sh` · Validação P3: `benchmarks/scripts/validate-p3-ingestao.sh`
 
 Código: `chaincode/iomt/`
 

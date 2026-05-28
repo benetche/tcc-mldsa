@@ -3,3 +3,7 @@ description: Alta frequência — simulação de monitoramento contínuo em UTI
 interval_ms: 100
 burst_size: 3
 duration_minutes: 15
+ingestion_script: scripts/ingestion/ingest_hospital.py
+data_source_default: SYNTHETIC
+target_function: RegisterFhirObservation
+# Taxa nominal: burst/interval ≈ 30 tx/s por worker (ajustar workers no benchmark P4)

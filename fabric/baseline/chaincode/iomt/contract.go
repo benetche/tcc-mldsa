@@ -28,6 +28,11 @@ type Observation struct {
 	MspSignAlg        string `json:"mspSignAlg,omitempty"`
 	MspSignature      string `json:"mspSignature,omitempty"`
 	MspSignatureBytes int    `json:"mspSignatureBytes,omitempty"`
+	PatientID         string `json:"patientId,omitempty"`
+	LoincCode         string `json:"loincCode,omitempty"`
+	ValueQuantity     string `json:"valueQuantity,omitempty"`
+	DataSource        string `json:"dataSource,omitempty"`
+	FhirPayloadBytes  int    `json:"fhirPayloadBytes,omitempty"`
 }
 
 // RegisterObservation grava uma observação IoMT (C1/C2 Pi; C3/C4 ESP32).
@@ -85,6 +90,50 @@ func (c *IoMTContract) ReadObservation(ctx contractapi.TransactionContextInterfa
 		return "", fmt.Errorf("observação %s não encontrada", id)
 	}
 	return string(data), nil
+}
+
+// RegisterFhirObservation grava observação derivada de recurso FHIR (Pilar 3).
+// fhirPayloadHash: sha256 do JSON canônico; dataSource: SYNTHETIC ou MIMIC.
+func (c *IoMTContract) RegisterFhirObservation(ctx contractapi.TransactionContextInterface, id, patientID, deviceID, loincCode, valueQuantity, recordedAt, fhirPayloadHash, dataSource, fhirPayloadBytesStr string) error {
+	if id == "" || patientID == "" || fhirPayloadHash == "" {
+		return fmt.Errorf("id, patientID e fhirPayloadHash são obrigatórios")
+	}
+	if deviceID == "" {
+		deviceID = "device-pi-lab-001"
+	}
+	key := fmt.Sprintf("OBS:%s", id)
+	exists, err := ctx.GetStub().GetState(key)
+	if err != nil {
+		return fmt.Errorf("falha ao ler estado: %w", err)
+	}
+	if exists != nil {
+		return fmt.Errorf("observação %s já existe", id)
+	}
+	network := os.Getenv("NETWORK_LABEL")
+	if network == "" {
+		network = "baseline"
+	}
+	fhirBytes := 0
+	if fhirPayloadBytesStr != "" {
+		_, _ = fmt.Sscanf(fhirPayloadBytesStr, "%d", &fhirBytes)
+	}
+	obs := Observation{
+		ID:               id,
+		PatientID:        patientID,
+		DeviceID:         deviceID,
+		PayloadHash:      fhirPayloadHash,
+		RecordedAt:       recordedAt,
+		Network:          network,
+		LoincCode:        loincCode,
+		ValueQuantity:    valueQuantity,
+		DataSource:       dataSource,
+		FhirPayloadBytes: fhirBytes,
+	}
+	data, err := json.Marshal(obs)
+	if err != nil {
+		return err
+	}
+	return ctx.GetStub().PutState(key, data)
 }
 
 func main() {

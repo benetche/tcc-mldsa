@@ -49,8 +49,15 @@ edge/esp32/sdkconfig.old
 benchmarks/results/*
 !benchmarks/results/.gitkeep
 
+# Pilar 5 — dados de séries temporais (Prometheus/Grafana)
+monitoring/data/
+monitoring/grafana/data/
+monitoring/.env
+
 # MIMIC-IV (nunca versionar dados reais)
 health-data/mimic/raw/
+scripts/ingestion/.env
+scripts/ingestion/.venv/
 *.csv
 *.parquet
 
