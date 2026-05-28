@@ -174,11 +174,16 @@ export FABRIC_CHAINCODE=${FABRIC_CHAINCODE:-iomt}
 export FABRIC_PEER_ENDPOINT=${LAB_FABRIC_HOST}:7051
 export IOMT_DEVICE_ID=${IOMT_DEVICE_ID:-pi-lab-001}
 export IOMT_SUBMIT_MODE=peer-cli
+export FABRIC_NETWORK=${FABRIC_NETWORK:-mldsa}
 EOF
 REMOTE
 
-echo "==> Smoke test C1 no Pi..."
-run_ssh "bash -lc 'cd \"${REMOTE_BASE}/edge/raspberry-pi\" && source config.env && ./scripts/smoke-c1.sh'"
+SMOKE_SCRIPT="smoke-c1.sh"
+if [[ "${FABRIC_NETWORK:-mldsa}" == "mldsa" ]]; then
+  SMOKE_SCRIPT="smoke-c2.sh"
+fi
+echo "==> Smoke test no Pi (${SMOKE_SCRIPT}, network=${FABRIC_NETWORK:-mldsa})..."
+run_ssh "bash -lc 'cd \"${REMOTE_BASE}/edge/raspberry-pi\" && source config.env && ./scripts/${SMOKE_SCRIPT}'"
 
 echo ""
 echo "OK: deploy em ${PI_USER}@${PI_HOST}:${REMOTE_BASE}"

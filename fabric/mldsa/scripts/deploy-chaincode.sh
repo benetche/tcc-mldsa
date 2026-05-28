@@ -45,3 +45,6 @@ else
 fi
 
 echo "[network=mldsa] Chaincode ${CHAINCODE_NAME} implantado (${DEPLOY_MODE})."
+if [[ "${DEPLOY_MODE}" == "ccaas" ]]; then
+  "${SCRIPT_DIR}/restart-ccaas.sh"
+fi

@@ -98,11 +98,23 @@ func SubmitObservation(cfg Config, obsID, deviceID, payloadHash, recordedAt stri
 	return latencyMs, ledgerJSON, nil
 }
 
-// OutputJSON imprime resultado C1 no stdout.
+// OutputJSON imprime resultado C1/C2 no stdout.
 func OutputJSON(obsID string, latencyMs int64, ledgerJSON []byte) error {
+	scenario := os.Getenv("IOMT_SCENARIO")
+	network := os.Getenv("FABRIC_NETWORK")
+	if scenario == "" {
+		if network == "mldsa" {
+			scenario = "C2"
+		} else {
+			scenario = "C1"
+		}
+	}
+	if network == "" {
+		network = "baseline"
+	}
 	out := map[string]any{
-		"scenario":    "C1",
-		"network":     "baseline",
+		"scenario":    scenario,
+		"network":     network,
 		"client":      "peer-cli",
 		"observation": obsID,
 		"latency_ms":  latencyMs,

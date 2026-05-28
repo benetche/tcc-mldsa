@@ -37,12 +37,16 @@ func (c *IoMTContract) RegisterObservation(ctx contractapi.TransactionContextInt
 	if exists != nil {
 		return fmt.Errorf("observação %s já existe", id)
 	}
+	network := os.Getenv("NETWORK_LABEL")
+	if network == "" {
+		network = "baseline"
+	}
 	obs := Observation{
 		ID:          id,
 		DeviceID:    deviceID,
 		PayloadHash: payloadHash,
 		RecordedAt:  recordedAt,
-		Network:     "baseline",
+		Network:     network,
 	}
 	data, err := json.Marshal(obs)
 	if err != nil {

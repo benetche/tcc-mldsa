@@ -1,0 +1,10 @@
+# Fragmento BCCSP para peers/orderer com ML-DSA (laboratório).
+# Montar em /etc/hyperledger/fabric/bccsp.yaml no container ou CORE_PEER_BCCSP_*.
+#
+# Requer imagem peer com liboqs + binário compilado via build-fabric-mldsa.sh.
+
+BCCSP:
+  Default: MLDSA
+  MLDSA:
+    FileKeyStore:
+      KeyStorePath: /var/hyperledger/production/msp/keystore

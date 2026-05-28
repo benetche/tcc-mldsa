@@ -13,5 +13,12 @@ if [[ -f "${PI_ROOT}/config.env" ]]; then
   source "${PI_ROOT}/config.env"
 fi
 
-echo "[scenario=C2 network=mldsa] smoke via smoke-c1 (mesmo cliente; rede PQC no host)"
+echo "[scenario=C2 network=mldsa] smoke Pi → Fabric mldsa"
+export FABRIC_NETWORK="${FABRIC_NETWORK:-mldsa}"
+cd "${PI_ROOT}"
+export REPO_ROOT="${REPO_ROOT:-$(cd "${PI_ROOT}/../.." 2>/dev/null && pwd || echo "")}"
+BIN="${PI_ROOT}/bin/submit-observation"
+if [[ -x "${BIN}" ]]; then
+  exec "${BIN}"
+fi
 exec "${SCRIPT_DIR}/smoke-c1.sh"
