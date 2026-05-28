@@ -1,13 +1,13 @@
 # ECDSA P-256 vs ML-DSA-65 (liboqs)
 
-Gerado em: 2026-05-28T17:08:48Z · iterações: 50
+Gerado em: 2026-05-28T17:13:08Z · iterações: 50
 
 | Algoritmo | Chave pública (B) | Chave privada (B) | Assinatura (B) | KeyGen (ms) | Sign (ms) | Verify (ms) |
 
 |-----------|-------------------|-------------------|----------------|-------------|-----------|-------------|
 
-| ECDSA P-256 | 65 | 32 | 71 | 0.020 | 0.040 | 0.100 |
-| ML-DSA-65 | — | — | — | — | — | — | *(liboqs não compilada)* |
+| ECDSA P-256 | 65 | 32 | 71 | 0.000 | 0.020 | 0.040 |
+| ML-DSA-65 | 1952 | 4032 | 3309 | 0.020 | 0.060 | 0.020 |
 
 ## Notas
 

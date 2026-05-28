@@ -21,6 +21,14 @@ need_cmd() {
 need_cmd git
 need_cmd cmake
 
+OPENSSL_CMAKE=()
+if pkg-config --exists openssl 2>/dev/null || [[ -f /usr/include/openssl/ssl.h ]]; then
+  OPENSSL_CMAKE=(-DOQS_USE_OPENSSL=ON)
+else
+  echo "AVISO: libssl-dev ausente — compilando com -DOQS_USE_OPENSSL=OFF" >&2
+  OPENSSL_CMAKE=(-DOQS_USE_OPENSSL=OFF)
+fi
+
 if ! command -v ninja >/dev/null 2>&1; then
   echo "AVISO: ninja não encontrado; usando gerador Unix Makefiles (mais lento)." >&2
   CMAKE_GENERATOR=(-G "Unix Makefiles")
@@ -47,7 +55,8 @@ cmake -S "${SRC_DIR}" -B "${BUILD_DIR}" \
   -DOQS_ENABLE_SIG_ml_dsa_65=ON \
   -DOQS_ENABLE_SIG_ml_dsa_44=OFF \
   -DOQS_ENABLE_SIG_ml_dsa_87=OFF \
-  -DOQS_DIST_BUILD=ON
+  -DOQS_DIST_BUILD=ON \
+  "${OPENSSL_CMAKE[@]}"
 
 echo "==> Compilando (jobs=${JOBS})..."
 cmake --build "${BUILD_DIR}" --parallel "${JOBS}"
