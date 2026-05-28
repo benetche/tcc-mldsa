@@ -36,6 +36,7 @@ __pycache__/
 # liboqs (build local Pilar 2)
 crypto/lib/
 crypto/.liboqs-src/
+crypto/.fabric-src/
 
 # Build embarcado
 edge/esp32/build/

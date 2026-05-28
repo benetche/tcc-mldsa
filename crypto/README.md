@@ -61,11 +61,27 @@ Recompilar liboqs **no Pi** (mesmo script) ou cross-compile com toolchain adequa
 LIBOQS_PREFIX=~/tcc-iomt/crypto/lib ./scripts/build-liboqs.sh
 ```
 
-## Próximo passo (task 06)
+## Binários Fabric ML-DSA (task 06)
 
-- Registrar factory no BCCSP do Fabric
-- `fabric/mldsa/` espelhando `fabric/baseline/`
-- Smoke **C2** no Pi (`edge/raspberry-pi`)
+```bash
+./crypto/scripts/build-fabric-mldsa.sh
+# → fabric/mldsa/bin/peer, orderer
+```
+
+## Rede `fabric/mldsa/`
+
+```bash
+cd fabric/mldsa
+./scripts/network-up.sh
+```
+
+Ver [fabric/mldsa/README.md](../fabric/mldsa/README.md).
+
+## Smoke C2 (Pi)
+
+```bash
+cd edge/raspberry-pi && ./scripts/smoke-c2.sh
+```
 
 ## Referências
 
