@@ -68,7 +68,7 @@ func submitGateway(obsID, deviceID, payloadHash, recordedAt string) error {
 
 	contract := gw.GetNetwork(cfg.Channel).GetContract(cfg.Chaincode)
 	start := time.Now()
-	_, err = contract.SubmitTransaction("RegisterObservation", obsID, deviceID, payloadHash, recordedAt)
+	_, err = contract.SubmitTransaction("RegisterObservation", obsID, deviceID, payloadHash, recordedAt, "", "")
 	latency := time.Since(start)
 	if err != nil {
 		return err

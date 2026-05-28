@@ -17,15 +17,19 @@ type IoMTContract struct {
 
 // Observation registro on-chain mínimo para benchmarks e ingestão FHIR.
 type Observation struct {
-	ID          string `json:"id"`
-	DeviceID    string `json:"deviceId"`
-	PayloadHash string `json:"payloadHash"`
-	RecordedAt  string `json:"recordedAt"`
-	Network     string `json:"network"`
+	ID                string `json:"id"`
+	DeviceID          string `json:"deviceId"`
+	PayloadHash       string `json:"payloadHash"`
+	RecordedAt        string `json:"recordedAt"`
+	Network           string `json:"network"`
+	SignAlg           string `json:"signAlg,omitempty"`
+	DeviceSignature   string `json:"deviceSignature,omitempty"`
+	SignatureBytes    int    `json:"signatureBytes,omitempty"`
 }
 
-// RegisterObservation grava uma observação IoMT (C1/C2 no Pi; futuro C3/C4 ESP32).
-func (c *IoMTContract) RegisterObservation(ctx contractapi.TransactionContextInterface, id, deviceID, payloadHash, recordedAt string) error {
+// RegisterObservation grava uma observação IoMT (C1/C2 Pi; C3/C4 ESP32).
+// signAlg / deviceSignature: assinatura no dispositivo de borda (ECDSA-P256 ou ML-DSA-65); vazios = omitir.
+func (c *IoMTContract) RegisterObservation(ctx contractapi.TransactionContextInterface, id, deviceID, payloadHash, recordedAt, signAlg, deviceSignature string) error {
 	if id == "" || deviceID == "" || payloadHash == "" {
 		return fmt.Errorf("id, deviceID e payloadHash são obrigatórios")
 	}
@@ -47,6 +51,11 @@ func (c *IoMTContract) RegisterObservation(ctx contractapi.TransactionContextInt
 		PayloadHash: payloadHash,
 		RecordedAt:  recordedAt,
 		Network:     network,
+		SignAlg:       signAlg,
+		DeviceSignature: deviceSignature,
+	}
+	if deviceSignature != "" {
+		obs.SignatureBytes = len(deviceSignature)
 	}
 	data, err := json.Marshal(obs)
 	if err != nil {
@@ -55,21 +64,17 @@ func (c *IoMTContract) RegisterObservation(ctx contractapi.TransactionContextInt
 	return ctx.GetStub().PutState(key, data)
 }
 
-// ReadObservation consulta uma observação pelo ID.
-func (c *IoMTContract) ReadObservation(ctx contractapi.TransactionContextInterface, id string) (*Observation, error) {
+// ReadObservation consulta uma observação pelo ID (JSON bruto — evita schema rígido com campos opcionais).
+func (c *IoMTContract) ReadObservation(ctx contractapi.TransactionContextInterface, id string) (string, error) {
 	key := fmt.Sprintf("OBS:%s", id)
 	data, err := ctx.GetStub().GetState(key)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if data == nil {
-		return nil, fmt.Errorf("observação %s não encontrada", id)
+		return "", fmt.Errorf("observação %s não encontrada", id)
 	}
-	var obs Observation
-	if err := json.Unmarshal(data, &obs); err != nil {
-		return nil, err
-	}
-	return &obs, nil
+	return string(data), nil
 }
 
 func main() {

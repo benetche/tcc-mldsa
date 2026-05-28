@@ -84,7 +84,9 @@ echo "==> Testando SSH ${PI_USER}@${PI_HOST}..."
 REMOTE_BASE="$(run_ssh "echo \"\${HOME}/${PI_REMOTE_SUBDIR}\"")"
 echo "    Diretório remoto: ${REMOTE_BASE}"
 
-run_ssh "mkdir -p \"${REMOTE_BASE}/edge/raspberry-pi\" \"${REMOTE_BASE}/fabric-samples/test-network\" \"${REMOTE_BASE}/fabric-samples/config\" \"${REMOTE_BASE}/fabric-samples/bin\""
+run_ssh "mkdir -p \"${REMOTE_BASE}/edge/raspberry-pi\" \"${REMOTE_BASE}/fabric-samples/test-network\" \
+  \"${REMOTE_BASE}/fabric-samples/config\" \"${REMOTE_BASE}/fabric-samples/bin\" \
+  \"${REMOTE_BASE}/bin\" \"${REMOTE_BASE}/crypto/lib\""
 
 echo "==> Configurando /etc/hosts no Pi (TLS Fabric → ${LAB_FABRIC_HOST})..."
 HOSTS_LINE="${LAB_FABRIC_HOST} peer0.org1.example.com peer0.org2.example.com orderer.example.com"
@@ -117,9 +119,22 @@ mkdir -p "${PI_ROOT}/bin"
   GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o "${PI_ROOT}/bin/submit-observation" ./cmd/submit-observation/
 )
 
+# ML-DSA na borda: build nativo no Pi após rsync de crypto/ (evita cross-gcc no host).
+PI_BUILD_MLDSA_ON_DEVICE="${PI_BUILD_MLDSA_ON_DEVICE:-1}"
+
 echo "==> Sincronizando cliente edge/raspberry-pi..."
 run_rsync "${PI_ROOT}/" "${REMOTE_BASE}/edge/raspberry-pi/" \
   --exclude lab.env --exclude '.git'
+
+if [[ "${FABRIC_NETWORK:-mldsa}" == "mldsa" && "${PI_BUILD_MLDSA_ON_DEVICE}" == "1" ]]; then
+  echo "==> Sincronizando fontes crypto/ para build ML-DSA no Pi..."
+  run_ssh "mkdir -p \"${REMOTE_BASE}/crypto\""
+  run_rsync "${REPO_ROOT}/crypto/" "${REMOTE_BASE}/crypto/" \
+    --exclude '.liboqs-src' --exclude 'lib/' --exclude 'lib-pi-arm64/' \
+    --exclude '.fabric-src/' --exclude 'patches/' --exclude 'integration/'
+  echo "==> Build sign-payload-mldsa no Pi (liboqs nativa)..."
+  run_ssh "bash -s" "${REMOTE_BASE}" < "${SCRIPT_DIR}/build-mldsa-on-pi-remote.sh"
+fi
 
 echo "==> Sincronizando credenciais Fabric (peer + orderer TLS, sem fabric-ca)..."
 run_ssh "mkdir -p \"${REMOTE_BASE}/fabric-samples/test-network/organizations/peerOrganizations\" \
@@ -175,6 +190,10 @@ export FABRIC_PEER_ENDPOINT=${LAB_FABRIC_HOST}:7051
 export IOMT_DEVICE_ID=${IOMT_DEVICE_ID:-pi-lab-001}
 export IOMT_SUBMIT_MODE=peer-cli
 export FABRIC_NETWORK=${FABRIC_NETWORK:-mldsa}
+export TCC_IOMT_HOME=${REMOTE_BASE}
+export IOMT_SIGN_PAYLOAD_BIN=${REMOTE_BASE}/bin/sign-payload-mldsa
+export LD_LIBRARY_PATH=${REMOTE_BASE}/crypto/lib/lib:\${LD_LIBRARY_PATH:-}
+export IOMT_EDGE_KEY_DIR=${REMOTE_BASE}/edge/raspberry-pi/keys
 EOF
 REMOTE
 

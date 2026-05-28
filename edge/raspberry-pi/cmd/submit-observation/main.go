@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/beneti/tcc-projeto-mldsa/edge/raspberry-pi/internal/edgesign"
 	"github.com/beneti/tcc-projeto-mldsa/edge/raspberry-pi/internal/peercli"
 )
 
@@ -60,7 +61,14 @@ func submitPeerCLI(obsID, deviceID, payloadHash, recordedAt string) error {
 	path := filepath.Join(samples, "bin")
 	_ = os.Setenv("PATH", path+string(os.PathListSeparator)+os.Getenv("PATH"))
 
-	latency, ledger, err := peercli.SubmitObservation(cfg, obsID, deviceID, payloadHash, recordedAt)
+	signAlg, deviceSig := "", ""
+	if edge, err := edgesign.Sign(payloadHash); err != nil {
+		return fmt.Errorf("assinatura borda: %w", err)
+	} else if edge.Signature != "" {
+		signAlg, deviceSig = edge.Alg, edge.Signature
+	}
+
+	latency, ledger, err := peercli.SubmitObservation(cfg, obsID, deviceID, payloadHash, recordedAt, signAlg, deviceSig)
 	if err != nil {
 		return err
 	}

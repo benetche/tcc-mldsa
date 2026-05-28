@@ -8,4 +8,5 @@ export LD_LIBRARY_PATH="${LIBOQS_PREFIX}/lib:${LD_LIBRARY_PATH:-}"
 export CGO_ENABLED=1
 
 cd "${CRYPTO_ROOT}"
-go test -v ./...
+# integration/ e patches/ exigem árvore Fabric completa (build-fabric-mldsa.sh).
+go test -v ./oqs/... ./bccsp/...

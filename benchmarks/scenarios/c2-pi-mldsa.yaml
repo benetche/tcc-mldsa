@@ -1,7 +1,7 @@
 scenario_id: C2
 network: mldsa
 device: raspberry-pi
-signing_mode: pi_client
+signing_mode: edge_mldsa_65
 load_profiles:
   - hospital-low
   - hospital-high

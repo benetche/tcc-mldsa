@@ -55,7 +55,7 @@ Se o chaincode **já funciona**, não é necessário redeploy — use `./scripts
 
 | Função | Descrição |
 |--------|-----------|
-| `RegisterObservation` | Grava observação IoMT (id, deviceId, payloadHash, recordedAt) |
+| `RegisterObservation` | Grava observação IoMT (+ signAlg, deviceSignature opcionais na borda) |
 | `ReadObservation` | Consulta por id |
 
 Código: `chaincode/iomt/`

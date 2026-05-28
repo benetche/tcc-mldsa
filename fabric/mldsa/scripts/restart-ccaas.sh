@@ -14,18 +14,18 @@ NETWORK_LABEL="${NETWORK_LABEL:-mldsa}"
 CCAAS_PORT="${CCAAS_SERVER_PORT:-9999}"
 IMAGE="${CHAINCODE_NAME}_ccaas_image:latest"
 
-PKG_ID="$(cd "${TN}" && peer lifecycle chaincode querycommitted \
-  --channelID "${CHANNEL_NAME}" --name "${CHAINCODE_NAME}" 2>/dev/null \
-  | awk '/Version:/{v=1} v&&/Sequence:/{print; exit}' || true)"
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID=Org1MSP
+export CORE_PEER_MSPCONFIGPATH="${TN}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
+export CORE_PEER_TLS_ROOTCERT_FILE="${TN}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt"
+export CORE_PEER_ADDRESS=localhost:7051
 
-# Obter package id instalado
-PACKAGE_ID="$(docker inspect "peer0org1_${CHAINCODE_NAME}_ccaas" --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null \
-  | grep '^CORE_CHAINCODE_ID_NAME=' | cut -d= -f2- || true)"
-
-if [[ -z "${PACKAGE_ID}" ]]; then
-  PACKAGE_ID="$(peer lifecycle chaincode queryinstalled --output json 2>/dev/null \
-    | jq -r --arg n "${CHAINCODE_NAME}" '.installed_chaincodes[] | select(.label|contains($n)) | .package_id' | head -1)"
-fi
+# Package id alinhado à sequence commitada no canal
+COMMITTED_SEQ="$(peer lifecycle chaincode querycommitted --channelID "${CHANNEL_NAME}" --name "${CHAINCODE_NAME}" --output json 2>/dev/null \
+  | jq -r '.sequence // empty')"
+PACKAGE_ID="$(peer lifecycle chaincode queryinstalled --output json 2>/dev/null \
+  | jq -r --arg n "${CHAINCODE_NAME}" --argjson seq "${COMMITTED_SEQ:-0}" \
+    '[.installed_chaincodes[] | select(.label|contains($n)) | .package_id] | .[if ($seq|tonumber) > 0 then ($seq|tonumber - 1) else (length - 1) end]')"
 
 if [[ -z "${PACKAGE_ID}" || "${PACKAGE_ID}" == "null" ]]; then
   echo "ERRO: package id do chaincode não encontrado" >&2

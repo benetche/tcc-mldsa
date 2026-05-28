@@ -34,7 +34,7 @@ peer chaincode invoke \
   --tlsRootCertFiles "${TN}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" \
   --peerAddresses localhost:9051 \
   --tlsRootCertFiles "${TN}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" \
-  -c "{\"function\":\"RegisterObservation\",\"Args\":[\"${TEST_ID}\",\"${DEVICE}\",\"${HASH}\",\"${TS}\"]}"
+  -c "{\"function\":\"RegisterObservation\",\"Args\":[\"${TEST_ID}\",\"${DEVICE}\",\"${HASH}\",\"${TS}\",\"\",\"\"]}"
 
 sleep 3
 echo "[network=baseline] ReadObservation..."
