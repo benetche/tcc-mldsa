@@ -1,0 +1,20 @@
+# Perfil BCCSP para rede Fabric ML-DSA (task 06 — integração completa).
+# Copiar para o diretório de config do peer/orderer ao subir fabric/mldsa/.
+#
+# Referência: https://hyperledger-fabric.readthedocs.io/en/release-2.5/ccpluggable.html
+
+BCCSP:
+  Default: SW
+  SW:
+    Hash: SHA2
+    Security: 256
+    # Identificador customizado — provedor em crypto/bccsp (liboqs ML-DSA-65)
+    SignatureHash: SHA2
+    # Task 06: registrar factory ML-DSA no fork/patch do Fabric BCCSP
+    # FileKeyStore:
+    #   KeyStorePath: /var/hyperledger/msp/keystore
+
+# Variáveis de ambiente sugeridas no host/Pi:
+#   LIBOQS_PREFIX=/path/to/crypto/lib
+#   LD_LIBRARY_PATH=$LIBOQS_PREFIX/lib
+#   FABRIC_BCCSP_PLUGIN=mldsa   # (task 06)

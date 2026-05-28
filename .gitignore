@@ -33,6 +33,10 @@ __pycache__/
 .venv/
 *.pyc
 
+# liboqs (build local Pilar 2)
+crypto/lib/
+crypto/.liboqs-src/
+
 # Build embarcado
 edge/esp32/build/
 edge/esp32/sdkconfig.old
