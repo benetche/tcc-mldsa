@@ -38,7 +38,14 @@ func submitGateway(_, _, _, _ string) error {
 }
 
 func submitPeerCLI(obsID, deviceID, payloadHash, recordedAt string) error {
-	repoRoot, _ := filepath.Abs(filepath.Join("..", "..", "..", ".."))
+	repoRoot := envOr("REPO_ROOT", "")
+	if repoRoot == "" {
+		var err error
+		repoRoot, err = filepath.Abs(filepath.Join("..", ".."))
+		if err != nil {
+			return err
+		}
+	}
 	samples := envOr("FABRIC_SAMPLES_DIR", filepath.Join(repoRoot, "fabric-samples"))
 	msp := envOr("FABRIC_MSP_DIR", filepath.Join(samples, "test-network/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp"))
 

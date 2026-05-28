@@ -1,5 +1,6 @@
-# Ambiente e segredos
-.env
+# Credenciais de laboratório (SSH) — nunca versionar
+edge/raspberry-pi/lab.env
+edge/raspberry-pi/config.env
 .env.*
 !.env.example
 *.pem

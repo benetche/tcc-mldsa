@@ -13,5 +13,17 @@ elif [[ -f "${SCRIPT_DIR}/export-fabric-env.sh" ]]; then
 fi
 
 cd "${PI_ROOT}"
-export REPO_ROOT="$(cd "${PI_ROOT}/../.." && pwd)"
+export REPO_ROOT="${REPO_ROOT:-$(cd "${PI_ROOT}/../.." && pwd)}"
+
+BIN="${PI_ROOT}/bin/submit-observation"
+if [[ -x "${BIN}" ]]; then
+  exec "${BIN}"
+fi
+
+if ! command -v go >/dev/null 2>&1; then
+  echo "ERRO: Go não instalado e bin/submit-observation ausente." >&2
+  echo "Execute deploy-to-pi.sh no PC (cross-compile) ou: sudo apt install golang-go" >&2
+  exit 1
+fi
+
 go run ./cmd/submit-observation/

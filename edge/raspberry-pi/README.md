@@ -15,7 +15,16 @@ Dispositivo de borda que submete observações ao chaincode **`iomt`** na rede F
 - Rede Fabric baseline acessível (peer na LAN ou Pi local)
 - Credenciais **User1@org1.example.com** do test-network
 
-## Configuração
+## Deploy no Pi (sem git)
+
+```bash
+cp lab.env.example lab.env    # PI_HOST, PI_USER, senha, LAB_FABRIC_HOST
+./scripts/deploy-to-pi.sh     # rsync + smoke C1 via SSH
+```
+
+Contexto: [.cursor/context/laboratorio-pi.md](../../.cursor/context/laboratorio-pi.md)
+
+## Configuração manual
 
 1. Subir Fabric no host de lab: `fabric/baseline/scripts/network-up.sh` + `deploy-chaincode.sh`
 2. Copiar credenciais ou montar `fabric-samples` no Pi

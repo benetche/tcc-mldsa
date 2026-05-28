@@ -4,6 +4,7 @@ package peercli
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -28,13 +29,31 @@ func SubmitObservation(cfg Config, obsID, deviceID, payloadHash, recordedAt stri
 	peer1TLS := filepath.Join(tn, "organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt")
 	peer2TLS := filepath.Join(tn, "organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt")
 
+	host, _, err := net.SplitHostPort(cfg.PeerEndpoint)
+	if err != nil {
+		host = "localhost"
+	}
+
+	var peer1Addr, peer2Addr, ordererAddr string
+	switch host {
+	case "localhost", "127.0.0.1", "::1":
+		peer1Addr = cfg.PeerEndpoint
+		peer2Addr = net.JoinHostPort(host, "9051")
+		ordererAddr = net.JoinHostPort(host, "7050")
+	default:
+		// Certificados TLS do test-network usam DNS SAN (peer0.org1.example.com), não IP.
+		peer1Addr = "peer0.org1.example.com:7051"
+		peer2Addr = "peer0.org2.example.com:9051"
+		ordererAddr = "orderer.example.com:7050"
+	}
+
 	env := os.Environ()
 	env = append(env,
 		"CORE_PEER_TLS_ENABLED=true",
 		"CORE_PEER_LOCALMSPID=Org1MSP",
 		fmt.Sprintf("CORE_PEER_MSPCONFIGPATH=%s", cfg.MSPDir),
 		fmt.Sprintf("CORE_PEER_TLS_ROOTCERT_FILE=%s", peer1TLS),
-		fmt.Sprintf("CORE_PEER_ADDRESS=%s", cfg.PeerEndpoint),
+		fmt.Sprintf("CORE_PEER_ADDRESS=%s", peer1Addr),
 		fmt.Sprintf("FABRIC_CFG_PATH=%s", filepath.Join(cfg.FabricSamplesDir, "config")),
 	)
 
@@ -43,15 +62,15 @@ func SubmitObservation(cfg Config, obsID, deviceID, payloadHash, recordedAt stri
 
 	start := time.Now()
 	invoke := exec.Command("peer", "chaincode", "invoke",
-		"-o", "localhost:7050",
+		"-o", ordererAddr,
 		"--ordererTLSHostnameOverride", "orderer.example.com",
 		"--tls",
 		"--cafile", ordererCA,
 		"-C", cfg.Channel,
 		"-n", cfg.Chaincode,
-		"--peerAddresses", "localhost:7051",
+		"--peerAddresses", peer1Addr,
 		"--tlsRootCertFiles", peer1TLS,
-		"--peerAddresses", "localhost:9051",
+		"--peerAddresses", peer2Addr,
 		"--tlsRootCertFiles", peer2TLS,
 		"-c", invokeArgs,
 	)
