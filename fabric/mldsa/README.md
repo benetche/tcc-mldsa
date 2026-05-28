@@ -1,55 +1,65 @@
 # Rede Fabric — ML-DSA (Pilar 2)
 
-Espelho de `fabric/baseline/` com BCCSP **ML-DSA-65** via liboqs.
+Espelho de `fabric/baseline/` com peers **`tcc/fabric-peer-mldsa`** (liboqs + BCCSP ML-DSA).
 
-> **Não rode baseline e mldsa ao mesmo tempo** — ambos usam as mesmas portas do `test-network`.
+> Não rode **baseline** e **mldsa** ao mesmo tempo (mesmas portas).
 
 ## Pré-requisitos
 
-1. `crypto/scripts/build-liboqs.sh`
-2. `crypto/scripts/build-fabric-mldsa.sh` (peer/orderer custom em `fabric/mldsa/bin/`)
-3. Mesmos pré-requisitos do baseline (Docker, fabric-samples)
+1. `../../crypto/scripts/build-liboqs.sh`
+2. `../../crypto/scripts/build-fabric-mldsa.sh` → `fabric/mldsa/bin/peer`
+3. `./scripts/build-peer-image.sh` → imagem Docker `tcc/fabric-peer-mldsa:2.5.12`
+4. Docker, `fabric-samples`, jq (`./scripts/ensure-jq.sh`)
 
-## Setup
+## Setup completo
 
 ```bash
-# 1. liboqs + binários Fabric ML-DSA
+cd fabric/mldsa
+
+# 1. liboqs + binários + imagem peer
 ../../crypto/scripts/build-liboqs.sh
 ../../crypto/scripts/build-fabric-mldsa.sh
+./scripts/build-peer-image.sh
 
-cd fabric/mldsa
-cp .env.example .env
-
-# 2. fabric-samples (compartilhado com baseline)
-./scripts/bootstrap-samples.sh
-
-# 3. Rede (logs network=mldsa)
+# 2. Rede (sobe test-network + troca peers para imagem ML-DSA)
 ./scripts/network-up.sh
+
+# 3. Chaincode
 ./scripts/deploy-chaincode.sh
 ./scripts/test-chaincode.sh
+./scripts/verify-peer-mldsa.sh
 ```
 
-## BCCSP
+## Imagem peer custom
 
-Copie `../../crypto/bccsp.yaml.example` para o MSP ou defina no peer:
+| Item | Valor |
+|------|--------|
+| Imagem | `tcc/fabric-peer-mldsa:2.5.12` |
+| liboqs | em `/usr/local/lib/oqs` |
+| BCCSP | factory `MLDSA` no binário; `core.yaml` com seção `MLDSA` |
+| CCAAS | `/opt/hyperledger/ccaas_builder` + `docker.io` |
+| MSP/TLS | ainda **ECDSA** (Fabric CA) — chaves lab em `lab-msp/` |
 
-```yaml
-BCCSP:
-  Default: MLDSA
-  MLDSA:
-    FileKeyStore:
-      KeyStorePath: /var/hyperledger/msp/keystore
+```bash
+./scripts/build-peer-image.sh      # build imagem
+./scripts/switch-peers-mldsa.sh    # recria só os peers (rede já up)
+./scripts/verify-peer-mldsa.sh     # confirma liboqs linkada
 ```
 
-Integração MSP X.509 completa: em evolução (task 06). Primitivas validadas em `crypto/bccsp/fabric`.
+## MSP ML-DSA (laboratório)
+
+```bash
+./scripts/configure-msp-mldsa.sh
+# → fabric/mldsa/lab-msp/ (formato liboqs, não X.509)
+```
+
+Integração MSP X.509 + assinatura de transação peer com ML-DSA: evolução futura (imagem + identidade).
 
 ## Cenário C2 (Pi)
 
-Após rede estável:
-
 ```bash
-cd edge/raspberry-pi
-# FABRIC_NETWORK=mldsa no deploy (futuro: smoke-c2.sh)
+cd ../../edge/raspberry-pi
+./scripts/deploy-to-pi.sh   # smoke-c2.sh se FABRIC_NETWORK=mldsa
 ```
 
 ## Encerrar

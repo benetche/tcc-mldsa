@@ -1,0 +1,13 @@
+# Override: peers com imagem tcc/fabric-peer-mldsa (liboqs + BCCSP MLDSA).
+# Usar com os compose files do test-network (ver switch-peers-mldsa.sh).
+
+services:
+  peer0.org1.example.com:
+    image: tcc/fabric-peer-mldsa:2.5.12
+    volumes:
+      - ${MLDSA_PEER_CORE_CFG}:/etc/hyperledger/peercfg/core.yaml:ro
+
+  peer0.org2.example.com:
+    image: tcc/fabric-peer-mldsa:2.5.12
+    volumes:
+      - ${MLDSA_PEER_CORE_CFG}:/etc/hyperledger/peercfg/core.yaml:ro

@@ -45,4 +45,6 @@ for peer in org1 org2; do
     "${IMAGE}"
 done
 
+echo "[network=mldsa] Aguardando CCAAS (5s)..."
+sleep 5
 echo "[network=mldsa] CCAAS reiniciado com NETWORK_LABEL=${NETWORK_LABEL} (${PACKAGE_ID})"

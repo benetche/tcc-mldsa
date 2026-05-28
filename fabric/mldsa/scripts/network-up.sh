@@ -15,3 +15,6 @@ echo "[network=mldsa] Subindo test-network..."
 ./network.sh up createChannel -c "${CHANNEL_NAME}" -ca
 
 echo "[network=mldsa] Canal ${CHANNEL_NAME} pronto."
+
+echo "[network=mldsa] Ativando peers com imagem ML-DSA (liboqs)..."
+"${SCRIPT_DIR}/switch-peers-mldsa.sh"

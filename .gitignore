@@ -18,6 +18,7 @@ fabric/baseline/channel-artifacts/
 fabric/baseline/system-genesis-block/
 fabric/baseline/logs/
 fabric/mldsa/lab-msp/
+fabric/mldsa/docker/dist/
 fabric/mldsa/organizations/
 fabric/mldsa/channel-artifacts/
 
