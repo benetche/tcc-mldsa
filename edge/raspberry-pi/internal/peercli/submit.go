@@ -23,8 +23,8 @@ type Config struct {
 }
 
 // SubmitObservation executa RegisterObservation + ReadObservation via peer CLI.
-// signAlg e deviceSignature são opcionais (assinatura na borda C1/C2).
-func SubmitObservation(cfg Config, obsID, deviceID, payloadHash, recordedAt, signAlg, deviceSignature string) (latencyMs int64, ledgerJSON []byte, err error) {
+// signAlg/deviceSignature: borda; mspSignAlg/mspSignature: MSP ML-DSA (opcional).
+func SubmitObservation(cfg Config, obsID, deviceID, payloadHash, recordedAt, signAlg, deviceSignature, mspSignAlg, mspSignature string) (latencyMs int64, ledgerJSON []byte, err error) {
 	tn := filepath.Join(cfg.FabricSamplesDir, "test-network")
 	ordererCA := filepath.Join(tn, "organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem")
 	peer1TLS := filepath.Join(tn, "organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt")
@@ -60,7 +60,7 @@ func SubmitObservation(cfg Config, obsID, deviceID, payloadHash, recordedAt, sig
 
 	invokeBody, err := json.Marshal(map[string]any{
 		"function": "RegisterObservation",
-		"Args":     []string{obsID, deviceID, payloadHash, recordedAt, signAlg, deviceSignature},
+		"Args":     []string{obsID, deviceID, payloadHash, recordedAt, signAlg, deviceSignature, mspSignAlg, mspSignature},
 	})
 	if err != nil {
 		return 0, nil, err

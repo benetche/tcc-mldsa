@@ -237,6 +237,18 @@ export IOMT_PAYLOAD_HASH="sha256:minha-observacao-teste"
 ~/tcc-iomt/edge/raspberry-pi/bin/submit-observation
 ```
 
+### C2 com assinatura MSP ML-DSA (BCCSP) on-chain
+
+Além da assinatura na borda, inclui prova MSP ML-DSA no ledger (`mspSignAlg`, `mspSignature`):
+
+```bash
+export IOMT_MSP_MLDSA=1
+./scripts/smoke-c2.sh
+```
+
+Validação no PC: `fabric/mldsa/scripts/test-msp-mldsa-endorse.sh`.  
+Escopo: `crypto/docs/p2-escopo-msp.md`.
+
 ### Desativar assinatura na borda (debug)
 
 ```bash
@@ -308,6 +320,9 @@ Definidas em `config.env` (Pi) ou export manual:
 | `IOMT_EDGE_KEY_DIR` | `.../keys` | idem | Chaves persistidas |
 | `TCC_IOMT_HOME` | `~/tcc-iomt` | idem | Raiz instalação |
 | `IOMT_SUBMIT_MODE` | `peer-cli` | idem | `peer-cli` (padrão) ou `gateway` |
+| `IOMT_MSP_MLDSA` | — | `1` | Grava também `mspSignature` ML-DSA on-chain |
+| `IOMT_MSP_SIGN_BIN` | — | `~/tcc-iomt/bin/msp-mldsa-sign` | Ferramenta MSP BCCSP |
+| `IOMT_MLDSA_MSP_DIR` | — | `.../fabric/mldsa/lab-msp/org1/user1` | Chaves MSP lab |
 
 ---
 

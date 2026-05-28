@@ -55,6 +55,26 @@
 
 **Baseline:** ECDSA P-256 (Fabric default).
 
+### Comparativo ECDSA vs ML-DSA-65 (laboratório, amd64)
+
+Fonte: `crypto/docs/ecdsa-vs-mldsa.md` (gerado por `crypto/scripts/benchmark-crypto.sh`).
+
+| Algoritmo | Chave pública (B) | Chave privada (B) | Assinatura (B) | Sign (ms) | Verify (ms) |
+|-----------|-------------------|-------------------|----------------|-----------|-------------|
+| ECDSA P-256 | 65 | 32 | 71 | ~0.02 | ~0.04 |
+| ML-DSA-65 | 1952 | 4032 | 3309 | ~0.06 | ~0.02 |
+
+### Escopo Pilar 2 (fechamento)
+
+| Camada | Baseline | ML-DSA (`fabric/mldsa`) |
+|--------|----------|-------------------------|
+| BCCSP peer/orderer | ECDSA (SW) | **ML-DSA-65** (`build-fabric-mldsa.sh`, imagem `tcc/fabric-peer-mldsa`) |
+| Assinatura borda (Pi) | ECDSA-P256 on-chain | ML-DSA-65 on-chain |
+| Assinatura MSP ML-DSA | — | **BCCSP lab** → `mspSignAlg` / `mspSignature` on-chain (`test-msp-mldsa-endorse.sh`) |
+| Envelope Fabric (User1/peer MSP X.509) | ECDSA (Fabric CA) | ECDSA (limitação Fabric 2.5 sem cert PQ) |
+
+Validação de fechamento: `fabric/mldsa/scripts/close-pilar-2.sh`.
+
 ---
 
 ## 4. Dados de saúde (Pilar 3)

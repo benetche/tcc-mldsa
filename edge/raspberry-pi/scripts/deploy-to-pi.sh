@@ -134,6 +134,12 @@ if [[ "${FABRIC_NETWORK:-mldsa}" == "mldsa" && "${PI_BUILD_MLDSA_ON_DEVICE}" == 
     --exclude '.fabric-src/' --exclude 'patches/' --exclude 'integration/'
   echo "==> Build sign-payload-mldsa no Pi (liboqs nativa)..."
   run_ssh "bash -s" "${REMOTE_BASE}" < "${SCRIPT_DIR}/build-mldsa-on-pi-remote.sh"
+  echo "==> Build msp-mldsa-sign no Pi..."
+  run_ssh "bash -lc 'cd \"${REMOTE_BASE}/crypto\" && CGO_ENABLED=1 go build -o \"${REMOTE_BASE}/bin/msp-mldsa-sign\" ./cmd/msp-mldsa-sign/'"
+  echo "==> MSP ML-DSA lab (org1/user1)..."
+  "${REPO_ROOT}/crypto/scripts/gen-msp-mldsa-lab.sh" "${REPO_ROOT}/fabric/mldsa/lab-msp/org1/user1"
+  run_ssh "mkdir -p \"${REMOTE_BASE}/fabric/mldsa/lab-msp/org1/user1/keystore\" \"${REMOTE_BASE}/fabric/mldsa/lab-msp/org1/user1/signcerts\""
+  run_rsync "${REPO_ROOT}/fabric/mldsa/lab-msp/org1/user1/" "${REMOTE_BASE}/fabric/mldsa/lab-msp/org1/user1/"
 fi
 
 echo "==> Sincronizando credenciais Fabric (peer + orderer TLS, sem fabric-ca)..."
@@ -194,6 +200,8 @@ export TCC_IOMT_HOME=${REMOTE_BASE}
 export IOMT_SIGN_PAYLOAD_BIN=${REMOTE_BASE}/bin/sign-payload-mldsa
 export LD_LIBRARY_PATH=${REMOTE_BASE}/crypto/lib/lib:\${LD_LIBRARY_PATH:-}
 export IOMT_EDGE_KEY_DIR=${REMOTE_BASE}/edge/raspberry-pi/keys
+export IOMT_MLDSA_MSP_DIR=${REMOTE_BASE}/fabric/mldsa/lab-msp/org1/user1
+export IOMT_MSP_SIGN_BIN=${REMOTE_BASE}/bin/msp-mldsa-sign
 EOF
 REMOTE
 

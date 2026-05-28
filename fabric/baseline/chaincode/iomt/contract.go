@@ -25,11 +25,14 @@ type Observation struct {
 	SignAlg           string `json:"signAlg,omitempty"`
 	DeviceSignature   string `json:"deviceSignature,omitempty"`
 	SignatureBytes    int    `json:"signatureBytes,omitempty"`
+	MspSignAlg        string `json:"mspSignAlg,omitempty"`
+	MspSignature      string `json:"mspSignature,omitempty"`
+	MspSignatureBytes int    `json:"mspSignatureBytes,omitempty"`
 }
 
 // RegisterObservation grava uma observação IoMT (C1/C2 Pi; C3/C4 ESP32).
-// signAlg / deviceSignature: assinatura no dispositivo de borda (ECDSA-P256 ou ML-DSA-65); vazios = omitir.
-func (c *IoMTContract) RegisterObservation(ctx contractapi.TransactionContextInterface, id, deviceID, payloadHash, recordedAt, signAlg, deviceSignature string) error {
+// signAlg/deviceSignature: borda; mspSignAlg/mspSignature: assinatura MSP ML-DSA (BCCSP laboratório).
+func (c *IoMTContract) RegisterObservation(ctx contractapi.TransactionContextInterface, id, deviceID, payloadHash, recordedAt, signAlg, deviceSignature, mspSignAlg, mspSignature string) error {
 	if id == "" || deviceID == "" || payloadHash == "" {
 		return fmt.Errorf("id, deviceID e payloadHash são obrigatórios")
 	}
@@ -56,6 +59,13 @@ func (c *IoMTContract) RegisterObservation(ctx contractapi.TransactionContextInt
 	}
 	if deviceSignature != "" {
 		obs.SignatureBytes = len(deviceSignature)
+	}
+	if mspSignAlg != "" {
+		obs.MspSignAlg = mspSignAlg
+	}
+	if mspSignature != "" {
+		obs.MspSignature = mspSignature
+		obs.MspSignatureBytes = len(mspSignature)
 	}
 	data, err := json.Marshal(obs)
 	if err != nil {

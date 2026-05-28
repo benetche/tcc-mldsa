@@ -68,7 +68,16 @@ func submitPeerCLI(obsID, deviceID, payloadHash, recordedAt string) error {
 		signAlg, deviceSig = edge.Alg, edge.Signature
 	}
 
-	latency, ledger, err := peercli.SubmitObservation(cfg, obsID, deviceID, payloadHash, recordedAt, signAlg, deviceSig)
+	mspAlg, mspSig := "", ""
+	if os.Getenv("IOMT_MSP_MLDSA") == "1" && os.Getenv("FABRIC_NETWORK") == "mldsa" {
+		var mspErr error
+		mspAlg, mspSig, mspErr = edgesign.MspMldsaSign(obsID, payloadHash, recordedAt)
+		if mspErr != nil {
+			return fmt.Errorf("msp mldsa: %w", mspErr)
+		}
+	}
+
+	latency, ledger, err := peercli.SubmitObservation(cfg, obsID, deviceID, payloadHash, recordedAt, signAlg, deviceSig, mspAlg, mspSig)
 	if err != nil {
 		return err
 	}

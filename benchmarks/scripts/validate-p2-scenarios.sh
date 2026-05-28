@@ -43,6 +43,17 @@ else
 fi
 
 # --- C2: rede mldsa ---
+log "C2: MSP ML-DSA endorse on-chain"
+if [[ -d "${ROOT}/fabric-samples/test-network/organizations" ]]; then
+  if "${ROOT}/fabric/mldsa/scripts/test-msp-mldsa-endorse.sh" >/tmp/p2-msp.log 2>&1; then
+    record "msp-mldsa" "ok" "mspSignAlg ML-DSA-65 on-chain"
+  else
+    record "msp-mldsa" "fail" "$(tail -5 /tmp/p2-msp.log)"
+  fi
+else
+  record "msp-mldsa" "skip" "rede ausente"
+fi
+
 log "C2: rede mldsa + peer ML-DSA + assinatura borda"
 if docker ps --format '{{.Names}}' 2>/dev/null | grep -q 'peer0.org1.example.com'; then
   if "${ROOT}/fabric/mldsa/scripts/verify-peer-mldsa.sh" >/tmp/p2-peer.log 2>&1; then

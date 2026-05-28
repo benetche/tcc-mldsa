@@ -14,9 +14,16 @@
 - **C2:** rede `mldsa`, peer com **BCCSP MLDSA**, assinatura **ML-DSA-65 na borda** on-chain.
 - **C3/C4:** fixtures YAML + stub `edge/esp32/scripts/validate-c3-c4-stub.sh` (`hardware_pending`).
 
-## Próximo passo (fora do escopo mínimo P2)
+## MSP ML-DSA (P2 fechado — laboratório)
 
-MSP X.509 com chaves ML-DSA nos certificados Fabric (identidade de proposta/endosso 100% PQC).
+- Ferramenta: `crypto/cmd/msp-mldsa-sign`
+- Teste E2E: `fabric/mldsa/scripts/test-msp-mldsa-endorse.sh`
+- Ledger: `mspSignAlg`, `mspSignature` (base64, ~3309 B decodificados)
+- Escopo e limitação X.509: `crypto/docs/p2-escopo-msp.md`
+
+## Evolução futura
+
+MSP X.509 com certificados PQ no Fabric CA (envelope 100% ML-DSA).
 
 ## Scripts
 
