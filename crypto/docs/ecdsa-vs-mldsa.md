@@ -1,0 +1,16 @@
+# ECDSA P-256 vs ML-DSA-65 (liboqs)
+
+Gerado em: 2026-05-28T17:08:48Z · iterações: 50
+
+| Algoritmo | Chave pública (B) | Chave privada (B) | Assinatura (B) | KeyGen (ms) | Sign (ms) | Verify (ms) |
+
+|-----------|-------------------|-------------------|----------------|-------------|-----------|-------------|
+
+| ECDSA P-256 | 65 | 32 | 71 | 0.020 | 0.040 | 0.100 |
+| ML-DSA-65 | — | — | — | — | — | — | *(liboqs não compilada)* |
+
+## Notas
+
+- ML-DSA-65 ≡ Dilithium3 (NIST FIPS 204).
+- Tempos médios em amd64; repetir no Pi (arm64) para C2/C4.
+- Integração Fabric BCCSP: task 06 (`fabric/mldsa/`).
