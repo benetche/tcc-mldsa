@@ -1,0 +1,2 @@
+# Simulador MQTT do ESP32 (opcional — há fallback via docker exec mosquitto_pub)
+paho-mqtt>=1.6

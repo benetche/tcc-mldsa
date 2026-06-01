@@ -1,0 +1,10 @@
+[
+  {
+    "targets": ["<IP_PI>:9100"],
+    "labels": {
+      "role": "raspberry-pi",
+      "device": "pi4",
+      "scenario": "C1-C2"
+    }
+  }
+]

@@ -53,6 +53,8 @@ benchmarks/results/*
 monitoring/data/
 monitoring/grafana/data/
 monitoring/.env
+# Alvos reais do Prometheus (IPs do lab) — manter só o template *.json.example
+monitoring/prometheus/targets/*.json
 
 # MIMIC-IV (nunca versionar dados reais)
 health-data/mimic/raw/

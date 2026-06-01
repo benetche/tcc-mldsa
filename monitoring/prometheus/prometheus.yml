@@ -1,0 +1,37 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+  external_labels:
+    monitor: iomt-lab
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Host de laboratório (PC) — CPU, RAM, disco, rede
+  - job_name: node-host
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          role: lab-host
+
+  # Containers Docker (peers Fabric, orderer, chaincode CCAAS)
+  - job_name: cadvisor
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          role: fabric-docker
+
+  # Ponte ESP32-D (MQTT → Telegraf → Prometheus). Up apenas com --profile mqtt.
+  - job_name: esp32-telegraf
+    static_configs:
+      - targets: ['telegraf:9273']
+        labels:
+          role: esp32-bridge
+
+  # Raspberry Pi (node_exporter). Solte um JSON em targets/ (ver pi.example.json).
+  - job_name: raspberry-pi
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/targets/*.json
