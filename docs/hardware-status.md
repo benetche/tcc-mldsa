@@ -4,7 +4,7 @@ Atualizado na branch `feat/f1-pilar-1-infra` (P1.2 concluído).
 
 | Dispositivo | Status | Cenários | Notas |
 |-------------|--------|----------|-------|
-| **Raspberry Pi 4 Model B** | Validado C1 | C1, C2 | Cliente Fabric baseline; deploy `deploy-to-pi.sh` |
+| **Raspberry Pi 4 Model B** | Validado C1/C2 | C1, C2 | deploy `deploy-to-pi.sh`; smoke C1/C2; FHIR/benchmark no Pi |
 | **ESP32-D** | Pendente | C3, C4 | Documentar em `edge/esp32/`; não bloqueia Pilar 1 |
 
 ## Raspberry Pi 4 — baseline de laboratório (P1.2)
@@ -20,12 +20,19 @@ Atualizado na branch `feat/f1-pilar-1-infra` (P1.2 concluído).
 
 Credenciais SSH: `edge/raspberry-pi/lab.env` (gitignored). Contexto: [.cursor/context/laboratorio-pi.md](../.cursor/context/laboratorio-pi.md).
 
-### Coleta de métricas (pré-benchmark)
+### Coleta de métricas
+
+| Método | Comando |
+|--------|---------|
+| CSV local | `./scripts/collect_metrics.sh 30 1 /tmp/c1-metrics.csv` |
+| Prometheus | `install-node-exporter.sh` + target `monitoring/prometheus/targets/pi.json` |
+| Durante benchmark | `run-pi-benchmark.sh` gera `resources.csv` por execução |
+
+### Validação automatizada (PC)
 
 ```bash
-# No Pi (após deploy)
-cd ~/tcc-iomt/edge/raspberry-pi
-./scripts/collect_metrics.sh 30 1 /tmp/c1-metrics.csv
+cd edge/raspberry-pi
+./scripts/validate-pi-scenarios.sh --deploy
 ```
 
 ## ESP32-D

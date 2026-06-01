@@ -126,6 +126,21 @@ echo "==> Sincronizando cliente edge/raspberry-pi..."
 run_rsync "${PI_ROOT}/" "${REMOTE_BASE}/edge/raspberry-pi/" \
   --exclude lab.env --exclude '.git'
 
+SYNC_FHIR="${SYNC_FHIR:-1}"
+if [[ "${SYNC_FHIR}" == "1" ]]; then
+  echo "==> Sincronizando ingestão FHIR (P3) para benchmarks no Pi..."
+  run_ssh "mkdir -p \"${REMOTE_BASE}/health-data\" \"${REMOTE_BASE}/scripts/ingestion\" \"${REMOTE_BASE}/benchmarks/scenarios\" \"${REMOTE_BASE}/benchmarks/scripts\""
+  run_rsync "${REPO_ROOT}/health-data/fixtures/" "${REMOTE_BASE}/health-data/fixtures/"
+  run_rsync "${REPO_ROOT}/health-data/python/" "${REMOTE_BASE}/health-data/python/"
+  run_rsync "${REPO_ROOT}/health-data/schemas/" "${REMOTE_BASE}/health-data/schemas/"
+  run_rsync "${REPO_ROOT}/scripts/ingestion/" "${REMOTE_BASE}/scripts/ingestion/" --exclude .venv --exclude .env
+  run_rsync "${REPO_ROOT}/benchmarks/scenarios/" "${REMOTE_BASE}/benchmarks/scenarios/"
+  run_rsync "${REPO_ROOT}/benchmarks/scripts/bench_lib.py" "${REMOTE_BASE}/benchmarks/scripts/bench_lib.py"
+  run_rsync "${REPO_ROOT}/benchmarks/requirements.txt" "${REMOTE_BASE}/benchmarks/requirements.txt"
+  echo "==> venv Python no Pi (ingestão)..."
+  run_ssh "bash -lc 'cd \"${REMOTE_BASE}/scripts/ingestion\" && (test -d .venv || python3 -m venv .venv) && . .venv/bin/activate && pip install -q -r requirements.txt'"
+fi
+
 if [[ "${FABRIC_NETWORK:-mldsa}" == "mldsa" && "${PI_BUILD_MLDSA_ON_DEVICE}" == "1" ]]; then
   echo "==> Sincronizando fontes crypto/ para build ML-DSA no Pi..."
   run_ssh "mkdir -p \"${REMOTE_BASE}/crypto\""

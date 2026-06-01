@@ -45,3 +45,22 @@ go build -o bin/submit-observation ./cmd/submit-observation/
 ```bash
 ./scripts/collect_metrics.sh 30 1 /tmp/metrics.csv
 ```
+
+## Validação e benchmarks no Pi
+
+```bash
+# No PC (lab.env configurado)
+./scripts/validate-pi-scenarios.sh --deploy   # deploy + smoke C1/C2 + FHIR no Pi
+./scripts/validate-pi-scenarios.sh            # só remoto (sem redeploy)
+
+# E2E completo no Pi (após deploy)
+ssh ${PI_USER}@<IP> 'cd ~/tcc-iomt/edge/raspberry-pi && source config.env && ./scripts/smoke-e2e-pi.sh'
+
+# Benchmark no Pi (≥30 amostras para TCC)
+./scripts/run-pi-benchmark.sh C1 hospital-low --samples 30 --warmup 10
+
+# Do PC via SSH
+../../benchmarks/scripts/run_suite_pi.sh --deploy C1 hospital-low --samples 30
+```
+
+Ver [docs/FLUXO-CENARIOS-PI.md](docs/FLUXO-CENARIOS-PI.md).
