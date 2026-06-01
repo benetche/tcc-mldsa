@@ -49,6 +49,11 @@ edge/esp32/sdkconfig.old
 benchmarks/results/*
 !benchmarks/results/.gitkeep
 
+# Benchmarks — artefatos derivados (regeráveis via analyze.py)
+benchmarks/reports/summary.json
+benchmarks/reports/matriz-resultados.md
+benchmarks/reports/figures/
+
 # Pilar 5 — dados de séries temporais (Prometheus/Grafana)
 monitoring/data/
 monitoring/grafana/data/
