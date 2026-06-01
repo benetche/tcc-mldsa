@@ -1,38 +1,55 @@
-# Scripts de benchmark
+# Scripts de benchmark (Pilar 4)
 
-## Objetivo
+Suíte **C1–C4** × `hospital-low` / `hospital-high` com paridade experimental.
+Reaproveita a ingestão FHIR do Pilar 3 (`scripts/ingestion`, `iomt_fhir`).
 
-Executar a suíte **C1–C4** × `hospital-low` / `hospital-high` com paridade experimental.
+## Componentes
 
-## Script principal (a implementar)
+| Script | Papel |
+|--------|-------|
+| `run_suite.sh` | Orquestra a matriz (cenários × cargas) |
+| `bench_lib.py` | Executa **1 cenário × 1 carga**; mede latência/TPS/recursos |
+| `analyze.py` | Agrega `results/`, gera tabelas e gráficos em `reports/` |
+| `validate-p3-ingestao.sh` | Smoke da ingestão P3 (pré-requisito) |
+| `validate-p2-scenarios.sh` | Validação cripto/MSP P2 |
 
-`run_suite.sh`:
+## Uso
 
 ```bash
-# Suíte completa — robustez do TCC
+# Suíte completa
 ./run_suite.sh --all
 
-# Cenário único
-./run_suite.sh --scenario C3 --load hospital-high
+# Cenário único, série robusta (≥30 amostras + warmup)
+./run_suite.sh --scenario C1 --samples 30 --warmup 10
 
-# Dry-run (validar configs)
+# Carga específica
+./run_suite.sh --scenario C1 --load hospital-high
+
+# Dry-run (sem rede; valida orquestração e stubs ESP32)
 ./run_suite.sh --all --dry-run
+
+# Análise
+python3 analyze.py --glob '*'
 ```
 
-## Saída esperada
+## Saída por execução
 
 ```
-benchmarks/results/<timestamp>-C1-hospital-low/
-  metadata.json
-  metrics.csv
-  logs/
+benchmarks/results/<timestamp>-Cx-load/
+  metadata.json   # cenário, signing_mode, commit, versões, resumo
+  metrics.csv     # 1 linha por transação medida
+  resources.csv   # amostras CPU%/RAM
 ```
 
-## Implementação futura
+Dados brutos em `results/` são **gitignored**. Cenários ESP32 sem hardware
+geram `status: hardware_pending` (nunca omitidos — robustez C1–C4).
 
-1. Carregar YAML de `benchmarks/scenarios/`
-2. Disparar cliente Pi ou ESP32 conforme `device`
-3. Agregar latência, TPS, bytes, recursos
-4. Falhar o build de CI se faltar cenário no `--all` (opcional)
+## ESP32 (C3/C4)
+
+Sem hardware: `hardware_pending`. Com hardware, definir bridge:
+
+```bash
+export IOMT_ESP32_BRIDGE=mqtt   # mqtt | serial | http (a implementar no edge)
+```
 
 Ver [cenarios-experimentais.md](../../.cursor/context/cenarios-experimentais.md).

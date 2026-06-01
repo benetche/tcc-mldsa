@@ -1,0 +1,4 @@
+# Benchmarks P4 — dependências mínimas (rodar também no Raspberry Pi arm64)
+PyYAML>=6.0
+# Gráficos opcionais (analyze.py degrada sem matplotlib)
+matplotlib>=3.7
