@@ -16,7 +16,9 @@ Uso:
 from __future__ import annotations
 
 import argparse
+import csv
 import json
+import math
 import statistics
 from pathlib import Path
 
@@ -37,13 +39,77 @@ METRICS = [
 ]
 
 
+# Valores críticos t de Student (bicaudal, 95%) por grau de liberdade (df).
+# Para df não tabelado, usa-se o próximo df conhecido >= df; acima de 120, z=1.96.
+_T_CRIT_95 = {
+    1: 12.706, 2: 4.303, 5: 2.571, 9: 2.262, 14: 2.145, 19: 2.093,
+    24: 2.064, 28: 2.048, 29: 2.045, 30: 2.042, 39: 2.023, 49: 2.010,
+    59: 2.001, 89: 1.987, 119: 1.980,
+}
+
+
+def t_crit_95(df: int) -> float:
+    if df <= 0:
+        return float("nan")
+    for k in sorted(_T_CRIT_95):
+        if df <= k:
+            return _T_CRIT_95[k]
+    return 1.96
+
+
+def dispersion(samples: list[float]) -> dict | None:
+    """Estatística descritiva + IC 95% (t de Student) sobre amostras brutas."""
+    n = len(samples)
+    if n == 0:
+        return None
+    mean = statistics.mean(samples)
+    sd = statistics.stdev(samples) if n > 1 else 0.0
+    sem = sd / math.sqrt(n) if n > 0 else 0.0
+    ci95 = t_crit_95(n - 1) * sem
+    srt = sorted(samples)
+    p50 = statistics.median(srt)
+    p95 = srt[min(n - 1, math.ceil(0.95 * n) - 1)]
+    return {
+        "n": n,
+        "mean": round(mean, 2),
+        "std": round(sd, 2),
+        "sem": round(sem, 2),
+        "ci95": round(ci95, 2),
+        "ci_low": round(mean - ci95, 2),
+        "ci_high": round(mean + ci95, 2),
+        "cv_pct": round(100 * sd / mean, 1) if mean else None,
+        "p50": round(p50, 2),
+        "p95": round(p95, 2),
+        "min": round(min(srt), 2),
+        "max": round(max(srt), 2),
+    }
+
+
+def load_latencies(run_dir: Path) -> list[float]:
+    """Latências (ms) das transações bem-sucedidas em metrics.csv."""
+    f = run_dir / "metrics.csv"
+    if not f.exists():
+        return []
+    out: list[float] = []
+    with f.open(encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            try:
+                if int(row.get("ok", "1")) == 1:
+                    out.append(float(row["latency_ms"]))
+            except (ValueError, KeyError, TypeError):
+                continue
+    return out
+
+
 def load_runs(pattern: str) -> list[dict]:
     runs = []
     for meta_file in sorted(RESULTS.glob(f"{pattern}/metadata.json")):
         try:
-            runs.append(json.loads(meta_file.read_text(encoding="utf-8")))
+            meta = json.loads(meta_file.read_text(encoding="utf-8"))
         except json.JSONDecodeError:
             continue
+        meta["_dir"] = str(meta_file.parent)
+        runs.append(meta)
     return runs
 
 
@@ -79,6 +145,14 @@ def aggregate(runs: list[dict]) -> dict:
                     "max": round(max(vals), 3),
                     "n": len(vals),
                 }
+        # Dispersão de latência sobre as amostras brutas (todas as tx de todos
+        # os runs da célula), para desvio-padrão e IC 95%.
+        latencies: list[float] = []
+        for i in items:
+            d = i.get("_dir")
+            if d:
+                latencies.extend(load_latencies(Path(d)))
+        entry["latency_dispersion"] = dispersion(latencies)
         agg[f"{scen}-{load}"] = entry
     return agg
 
@@ -119,6 +193,24 @@ def write_markdown(agg: dict, runs: list[dict]) -> Path:
             f"{e['runs']} | {e['status']} | {g('latency_ms_p50')} | {g('latency_ms_p95')} | "
             f"{g('tps')} | {g('avg_payload_bytes')} | {g('cpu_percent_avg')} | "
             f"{g('mem_used_mb_avg')} | {g('success_rate')} |"
+        )
+
+    lines.append("\n## Dispersão de latência (rigor estatístico)\n")
+    lines.append("> Estatística sobre as amostras brutas de latência por transação "
+                 "(`metrics.csv`, tx bem-sucedidas). IC 95% via t de Student. "
+                 "CV = coeficiente de variação (DP/média).\n")
+    lines.append("| Cenário | Carga | n | Média (ms) | DP (ms) | IC 95% (ms) | CV% | p50 | p95 |")
+    lines.append("|---------|-------|---|------------|---------|-------------|-----|-----|-----|")
+    for key in sorted(agg.keys()):
+        e = agg[key]
+        d = e.get("latency_dispersion")
+        if not d:
+            continue
+        ci = f"{d['mean']:g} ± {d['ci95']:g} [{d['ci_low']:g}; {d['ci_high']:g}]"
+        lines.append(
+            f"| {e['scenario_id']} | {e['load_profile']} | {d['n']} | "
+            f"{d['mean']:g} | {d['std']:g} | {ci} | {fmt(d['cv_pct'])} | "
+            f"{d['p50']:g} | {d['p95']:g} |"
         )
 
     lines.append("\n## Comparação por par (impacto ML-DSA)\n")
