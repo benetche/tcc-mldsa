@@ -31,7 +31,7 @@ menu "IoMT ESP32 (TCC)"
 
     config IOMT_MQTT_BROKER_URI
         string "MQTT broker URI"
-        default "mqtt://<IP_BROKER>:1883"
+        default "mqtt://192.168.0.10:1883"
         help
             Broker Mosquitto do stack monitoring/ (host de laboratório).
 

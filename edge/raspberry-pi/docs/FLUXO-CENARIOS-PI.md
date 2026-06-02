@@ -1,7 +1,7 @@
 # Fluxo completo — cenários C1/C2 no Raspberry Pi 4
 
 Guia operacional para executar cada cenário experimental com o cliente IoMT no Pi.  
-Matriz completa (incluindo ESP32 C3/C4): `.cursor/context/cenarios-experimentais.md`.
+Matriz completa (incluindo ESP32 C3/C4): `docs/cenarios-experimentais.md`.
 
 ## Visão geral
 
@@ -66,7 +66,7 @@ Detalhes: `crypto/docs/p2-camadas-assinatura.md`.
 
 - Pi e PC na mesma LAN
 - Firewall do PC: portas **7051**, **9051**, **7050** abertas para o Pi
-- `LAB_FABRIC_HOST` = IP do PC na LAN (ex.: `<IP_PC>`)
+- `LAB_FABRIC_HOST` = IP do PC na LAN (ex.: `192.168.0.10`)
 
 ---
 
@@ -82,7 +82,7 @@ cp lab.env.example lab.env
 
 | Variável | Descrição |
 |----------|-----------|
-| `PI_HOST` | IP do Pi (ex. `<IP_PI>`) |
+| `PI_HOST` | IP do Pi (ex. `192.168.0.100`) |
 | `PI_USER` | Usuário SSH (ex. `pi4`) |
 | `PI_SSH_PASSWORD` | Senha SSH (ou use `PI_SSH_KEY`) |
 | `PI_REMOTE_SUBDIR` | Pasta remota (padrão `tcc-iomt`) |
@@ -96,7 +96,7 @@ O deploy tenta adicionar automaticamente. Se falhar, no Pi:
 ```bash
 sudo nano /etc/hosts
 # Linha (substitua pelo IP do PC):
-<IP_PC> peer0.org1.example.com peer0.org2.example.com orderer.example.com
+<IP_DO_PC> peer0.org1.example.com peer0.org2.example.com orderer.example.com
 ```
 
 ---
@@ -185,7 +185,7 @@ cd edge/raspberry-pi
 Conecte via SSH e use sempre `config.env`:
 
 ```bash
-ssh ${PI_USER}@<IP_PI>
+ssh "${PI_USER}@${PI_HOST}"
 cd ~/tcc-iomt/edge/raspberry-pi
 source config.env
 ```
@@ -397,7 +397,7 @@ Deve imprimir JSON com `"signAlg":"ML-DSA-65"`.
 ```bash
 cd edge/raspberry-pi
 GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o bin/submit-observation ./cmd/submit-observation/
-rsync -avz bin/submit-observation ${PI_USER}@<IP_PI>:~/tcc-iomt/edge/raspberry-pi/bin/
+rsync -avz bin/submit-observation "${PI_USER}@${PI_HOST}:~/tcc-iomt/edge/raspberry-pi/bin/"
 ```
 
 ---
@@ -424,7 +424,7 @@ rsync -avz bin/submit-observation ${PI_USER}@<IP_PI>:~/tcc-iomt/edge/raspberry-p
 
 ## Referências
 
-- Laboratório SSH: `.cursor/context/laboratorio-pi.md`
+- Laboratório SSH: `docs/laboratorio-local.md`
 - Rede baseline: `fabric/baseline/README.md`
 - Rede mldsa: `fabric/mldsa/README.md`
 - Comparativo ECDSA vs ML-DSA: `crypto/docs/ecdsa-vs-mldsa.md`

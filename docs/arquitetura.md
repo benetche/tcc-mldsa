@@ -54,7 +54,7 @@ Base: **Fabric test-network** (2 orgs, 1 channel).
 | C3 | ECDSA | ESP32 | Hardware pendente |
 | C4 | ML-DSA | ESP32 | Hardware pendente |
 
-Detalhes: [cenarios-experimentais.md](../.cursor/context/cenarios-experimentais.md).
+Detalhes: [cenarios-experimentais.md](cenarios-experimentais.md).
 
 ## Paridade baseline ↔ ML-DSA
 

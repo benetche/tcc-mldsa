@@ -1,6 +1,6 @@
 # Cloud Agents — TCC ML-DSA + Fabric + IoMT
 
-Instruções para agentes Cursor em ambiente cloud/ephemeral. Convenções de código: `.cursor/rules/`.
+Instruções para agentes Cursor em ambiente cloud/ephemeral. A pasta `.cursor/` é **gitignored** (uso local); siga a documentação versionada em `docs/`.
 
 ## Projeto
 
@@ -35,13 +35,13 @@ export FABRIC_NETWORK=baseline  # ou mldsa
 | `edge/` | Raspberry Pi, ESP32 |
 | `benchmarks/` | Scripts e relatórios |
 | `monitoring/` | P5 opcional: Prometheus, Grafana, Telegraf |
-| `.cursor/tasks/` | Checklists por fase |
+| `docs/` | Cenários, paridade, laboratório, decisões de stack |
 
 ## Ordem de trabalho
 
-1. Task atual em `.cursor/tasks/README.md`
-2. Agente do pilar em `.cursor/agents/`
-3. Atualizar `.cursor/roadmap/ROADMAP.md#registro-de-progresso`
+1. [docs/decisoes-stack.md](docs/decisoes-stack.md) e [docs/cenarios-experimentais.md](docs/cenarios-experimentais.md)
+2. Checklist da fase em `.cursor/tasks/` (apenas local, se existir)
+3. Laboratório: [docs/laboratorio-local.md](docs/laboratorio-local.md) — nunca commitar `lab.env` / `secrets.h`
 
 ## Segurança
 

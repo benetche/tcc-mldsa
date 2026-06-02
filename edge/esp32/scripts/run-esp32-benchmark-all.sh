@@ -5,7 +5,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
-export MQTT_HOST="${MQTT_HOST:-<IP_PC>}"
+: "${MQTT_HOST:?Defina MQTT_HOST (IP do broker Mosquitto)}"
+export MQTT_HOST
 export IOMT_ESP32_BRIDGE=mqtt
 export FABRIC_PEER_ENDPOINT="${FABRIC_PEER_ENDPOINT:-localhost:7051}"
 

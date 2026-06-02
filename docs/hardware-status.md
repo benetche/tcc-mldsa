@@ -5,20 +5,20 @@ Atualizado na branch `feat/f1-pilar-1-infra` (P1.2 concluído).
 | Dispositivo | Status | Cenários | Notas |
 |-------------|--------|----------|-------|
 | **Raspberry Pi 4 Model B** | Validado C1/C2 | C1, C2 | deploy `deploy-to-pi.sh`; smoke C1/C2; FHIR/benchmark no Pi |
-| **ESP32-D** | Validado C3 (lab) | C3, C4 | ESP-IDF; ECDSA on-device; MQTT `<IP_ESP32>`; ponte→Fabric |
+| **ESP32-D** | Validado C3 (lab) | C3, C4 | ESP-IDF; ECDSA on-device; MQTT (IP em `secrets.h`); ponte→Fabric |
 
 ## Raspberry Pi 4 — baseline de laboratório (P1.2)
 
 | Item | Valor |
 |------|--------|
-| Host SSH | `${PI_USER}@<IP_PI>` |
+| Host SSH | `PI_USER@PI_HOST` (ver `lab.env`) |
 | Deploy remoto | `~/tcc-iomt/` (`PI_REMOTE_SUBDIR`) |
-| Fabric peer (PC) | `<IP_PC>:7051` (auto `LAB_FABRIC_HOST`) |
+| Fabric peer (PC) | `LAB_FABRIC_HOST:7051` (auto no deploy) |
 | Cliente C1 | `peer-cli`, latência smoke **~320–440 ms** (2026-05-28) |
 | Binário edge | `submit-observation` linux/arm64 (cross-compile no PC) |
 | peer no Pi | Hyperledger Fabric **2.5.12** (arm64, instalado no deploy) |
 
-Credenciais SSH: `edge/raspberry-pi/lab.env` (gitignored). Contexto: [.cursor/context/laboratorio-pi.md](../.cursor/context/laboratorio-pi.md).
+Credenciais SSH: `edge/raspberry-pi/lab.env` (gitignored). Contexto: [laboratorio-local.md](laboratorio-local.md).
 
 ### Coleta de métricas
 
@@ -40,8 +40,8 @@ cd edge/raspberry-pi
 | Item | Valor |
 |------|--------|
 | Porta USB | `/dev/ttyUSB0` (CH340) |
-| IP (lab) | `<IP_ESP32>` |
-| Broker MQTT | `mqtt://<IP_PC>:1883` |
+| IP (lab) | Configurado em `secrets.h` / menuconfig |
+| Broker MQTT | URI em `secrets.h` ou `MQTT_HOST` nos scripts |
 | C3 | ECDSA-P256 on-device (`esp32_direct`) |
 | C4 | ML-DSA stub → `esp32_payload_only` via relay MQTT |
 | Smoke E2E | `edge/esp32/scripts/smoke-e2e-c3.sh` |

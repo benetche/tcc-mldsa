@@ -73,7 +73,7 @@ DO_BUILD=1 ./scripts/validate-esp32.sh   # com ESP-IDF
 Pré-requisitos: Fabric baseline UP, Mosquitto no lab, ESP32 flashado (C3).
 
 ```bash
-MQTT_HOST=<IP_PC> ./scripts/smoke-e2e-c3.sh
+MQTT_HOST=<IP_DO_BROKER> ./scripts/smoke-e2e-c3.sh
 ```
 
 Detalhes: [docs/PONTE-MQTT-FABRIC.md](docs/PONTE-MQTT-FABRIC.md).
@@ -83,7 +83,7 @@ Detalhes: [docs/PONTE-MQTT-FABRIC.md](docs/PONTE-MQTT-FABRIC.md).
 Firmware C4 publica sem assinatura PQC; relay classifica `esp32_payload_only`:
 
 ```bash
-MQTT_HOST=<IP_PC> ./scripts/smoke-c4-relay.sh   # rede mldsa
+MQTT_HOST=<IP_DO_BROKER> ./scripts/smoke-c4-relay.sh   # rede mldsa
 ```
 
 ### Build por cenário/carga
@@ -97,10 +97,10 @@ FLASH=1 ESPPORT=/dev/ttyUSB0 ./scripts/build-scenario.sh C3 low
 ### Benchmarks
 
 ```bash
-MQTT_HOST=<IP_PC> ./scripts/run-esp32-benchmark.sh C3 hospital-low
-MQTT_HOST=<IP_PC> ./scripts/run-esp32-benchmark-all.sh   # C3+C4 × low/high
+MQTT_HOST=<IP_DO_BROKER> ./scripts/run-esp32-benchmark.sh C3 hospital-low
+MQTT_HOST=<IP_DO_BROKER> ./scripts/run-esp32-benchmark-all.sh   # C3+C4 × low/high
 ```
 
 Payload MQTT usa `recorded_at` em **RFC3339** (UTC) após SNTP no Wi-Fi.
 
-Ver [cenarios-experimentais.md](../../.cursor/context/cenarios-experimentais.md).
+Ver [cenarios-experimentais.md](../../docs/cenarios-experimentais.md).

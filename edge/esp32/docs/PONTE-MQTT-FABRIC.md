@@ -19,13 +19,13 @@ partir do payload e grava em `metadata.json` (`signing_mode_effective`, `relay: 
 
 ```bash
 # Smoke E2E C3 (ESP32 publicando + Fabric baseline)
-MQTT_HOST=<IP_PC> ./edge/esp32/scripts/smoke-e2e-c3.sh
+MQTT_HOST=<IP_DO_BROKER> ./edge/esp32/scripts/smoke-e2e-c3.sh
 
 # Uma observação manual
 python3 edge/esp32/scripts/mqtt_fabric_bridge.py --once
 
 # Benchmark formal (≥30 amostras)
-MQTT_HOST=<IP_PC> ./edge/esp32/scripts/run-esp32-benchmark.sh C3 hospital-low
+MQTT_HOST=<IP_DO_BROKER> ./edge/esp32/scripts/run-esp32-benchmark.sh C3 hospital-low
 ```
 
 Variáveis: `MQTT_HOST`, `MQTT_PORT`, `IOMT_DEVICE_ID`, `FABRIC_PEER_ENDPOINT`,

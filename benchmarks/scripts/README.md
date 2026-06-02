@@ -52,4 +52,4 @@ Sem hardware: `hardware_pending`. Com hardware, definir bridge:
 export IOMT_ESP32_BRIDGE=mqtt   # mqtt | serial | http (a implementar no edge)
 ```
 
-Ver [cenarios-experimentais.md](../../.cursor/context/cenarios-experimentais.md).
+Ver [cenarios-experimentais.md](../../docs/cenarios-experimentais.md).

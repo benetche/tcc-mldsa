@@ -86,4 +86,4 @@ cd edge/raspberry-pi && ./scripts/smoke-c2.sh
 ## Referências
 
 - [decisoes-stack.md](../docs/decisoes-stack.md) §3
-- Task: `.cursor/tasks/05-liboqs-bccsp-mldsa.md`
+- Stack: [docs/decisoes-stack.md](../docs/decisoes-stack.md)

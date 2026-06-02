@@ -32,7 +32,7 @@ No Pi após deploy:
 cd ~/tcc-iomt/edge/raspberry-pi && source config.env && ./scripts/smoke-c2.sh
 ```
 
-Contexto de laboratório: [.cursor/context/laboratorio-pi.md](../../.cursor/context/laboratorio-pi.md).
+Contexto de laboratório: [docs/laboratorio-local.md](../../docs/laboratorio-local.md).
 
 ## Build local (dev)
 
@@ -54,7 +54,7 @@ go build -o bin/submit-observation ./cmd/submit-observation/
 ./scripts/validate-pi-scenarios.sh            # só remoto (sem redeploy)
 
 # E2E completo no Pi (após deploy)
-ssh ${PI_USER}@<IP> 'cd ~/tcc-iomt/edge/raspberry-pi && source config.env && ./scripts/smoke-e2e-pi.sh'
+ssh "${PI_USER}@${PI_HOST}" 'cd ~/tcc-iomt/edge/raspberry-pi && source config.env && ./scripts/smoke-e2e-pi.sh'
 
 # Benchmark no Pi (≥30 amostras para TCC)
 ./scripts/run-pi-benchmark.sh C1 hospital-low --samples 30 --warmup 10

@@ -12,7 +12,8 @@ export FABRIC_SAMPLES_DIR="${FABRIC_SAMPLES_DIR:-${REPO_ROOT}/fabric-samples}"
 export PATH="${FABRIC_SAMPLES_DIR}/bin:${PATH}"
 export REPO_ROOT="${REPO_ROOT}"
 export FABRIC_PEER_ENDPOINT="${FABRIC_PEER_ENDPOINT:-localhost:7051}"
-export MQTT_HOST="${MQTT_HOST:-<IP_PC>}"
+: "${MQTT_HOST:?Defina MQTT_HOST (IP do broker Mosquitto)}"
+export MQTT_HOST
 export MQTT_PORT="${MQTT_PORT:-1883}"
 export IOMT_DEVICE_ID="${IOMT_DEVICE_ID:-esp32-ward-01}"
 

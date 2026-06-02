@@ -126,7 +126,7 @@ Validação de fechamento: `fabric/mldsa/scripts/close-pilar-2.sh`.
 
 ## 8. Hipóteses preliminares (benchmarks)
 
-Ver [cenarios-experimentais.md](../.cursor/context/cenarios-experimentais.md) — H1 a H5.
+Ver [cenarios-experimentais.md](cenarios-experimentais.md) — H1 a H5.
 
 ---
 
@@ -144,7 +144,7 @@ Ver [cenarios-experimentais.md](../.cursor/context/cenarios-experimentais.md) �
 
 **Não escopo:** SaaS (Datadog), APM enterprise, exposição à internet.
 
-**Implementação:** `monitoring/` · [arquitetura-observabilidade.md](../monitoring/docs/arquitetura-observabilidade.md) · task [12-monitoramento-observabilidade.md](../.cursor/tasks/12-monitoramento-observabilidade.md).
+**Implementação:** `monitoring/` · [arquitetura-observabilidade.md](../monitoring/docs/arquitetura-observabilidade.md).
 
 ---
 

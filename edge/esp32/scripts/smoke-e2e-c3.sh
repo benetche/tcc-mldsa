@@ -3,11 +3,11 @@
 #
 # Pré-requisitos:
 #   - Rede Fabric baseline UP (peer localhost:7051)
-#   - Mosquitto acessível (MQTT_HOST, default <IP_PC>:1883)
+#   - Mosquitto acessível (defina MQTT_HOST, ex.: export MQTT_HOST=192.168.0.10)
 #   - ESP32 flashado (C3), publicando em iomt/esp32/{device_id}/observation
 #
 # Uso:
-#   MQTT_HOST=<IP_PC> ./scripts/smoke-e2e-c3.sh
+#   MQTT_HOST=192.168.0.10 ./scripts/smoke-e2e-c3.sh
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
@@ -17,7 +17,8 @@ export FABRIC_SAMPLES_DIR="${FABRIC_SAMPLES_DIR:-${REPO_ROOT}/fabric-samples}"
 export PATH="${FABRIC_SAMPLES_DIR}/bin:${PATH}"
 export REPO_ROOT="${REPO_ROOT}"
 export FABRIC_PEER_ENDPOINT="${FABRIC_PEER_ENDPOINT:-localhost:7051}"
-export MQTT_HOST="${MQTT_HOST:-<IP_PC>}"
+: "${MQTT_HOST:?Defina MQTT_HOST (IP do broker Mosquitto)}"
+export MQTT_HOST
 export MQTT_PORT="${MQTT_PORT:-1883}"
 export IOMT_DEVICE_ID="${IOMT_DEVICE_ID:-esp32-ward-01}"
 

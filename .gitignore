@@ -1,6 +1,11 @@
-# Credenciais de laboratório (SSH) — nunca versionar
+# Cursor (agentes, roadmap, tasks — uso local; não publicar)
+.cursor/
+
+# Credenciais de laboratório (SSH, Wi-Fi, MQTT) — nunca versionar
 edge/raspberry-pi/lab.env
 edge/raspberry-pi/config.env
+edge/esp32/main/secrets.h
+edge/esp32/sdkconfig
 .env.*
 !.env.example
 *.pem
@@ -8,6 +13,8 @@ edge/raspberry-pi/config.env
 wallet/
 organizations/*/peerOrganizations/*/users/**/msp/keystore/*
 !**/.gitkeep
+
+monografia/
 
 # jq baixado localmente (ensure-jq.sh)
 fabric/baseline/bin/jq
@@ -21,9 +28,6 @@ fabric/mldsa/lab-msp/
 fabric/mldsa/docker/dist/
 fabric/mldsa/organizations/
 fabric/mldsa/channel-artifacts/
-
-# fabric-samples (clone local opcional)
-fabric-samples/
 
 # Go
 vendor/
@@ -71,8 +75,12 @@ scripts/ingestion/.venv/
 # IDE / OS
 .idea/
 .vscode/
+*.code-workspace
 *.swp
 .DS_Store
+
+# Clone local opcional (Hyperledger samples)
+fabric-samples/
 
 # Logs
 *.log
