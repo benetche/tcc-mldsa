@@ -1,107 +1,363 @@
 {
   "annotations": { "list": [] },
   "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
   "schemaVersion": 39,
-  "title": "IoMT — Visão geral (host, Fabric, Pi, ESP32)",
+  "title": "IoMT — Monitoramento do laboratório",
   "uid": "iomt-overview",
   "tags": ["iomt", "tcc", "pilar-5"],
   "time": { "from": "now-30m", "to": "now" },
   "refresh": "10s",
-  "templating": { "list": [] },
+  "templating": {
+    "list": [
+      {
+        "name": "esp32_device",
+        "label": "ESP32 (device_id)",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "query": { "query": "label_values(esp32_heap_free, device_id)", "refId": "StandardVariableQuery" },
+        "includeAll": true,
+        "allValue": ".*",
+        "multi": false,
+        "current": { "text": "All", "value": "$__all" }
+      }
+    ]
+  },
   "panels": [
     {
-      "type": "timeseries",
-      "title": "CPU por host (%)",
+      "type": "row",
+      "title": "ESP32-D — borda IoMT (MQTT → Telegraf)",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "collapsed": false
+    },
+    {
+      "type": "stat",
+      "title": "Cenário ativo",
+      "description": "C3 = ECDSA baseline · C4 = ML-DSA (stub)",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
-      "fieldConfig": { "defaults": { "unit": "percent" }, "overrides": [] },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] }
+        }
+      },
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "auto" },
       "targets": [
         {
           "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[1m])) * 100)",
-          "legendFormat": "{{instance}}"
+          "expr": "max by (scenario, signing_mode, device_id) (esp32_heap_free{device_id=~\"$esp32_device\"})",
+          "legendFormat": "ESP32 · {{device_id}} — cenário {{scenario}} — {{signing_mode}}"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Algoritmo de assinatura (metadado)",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": {} },
+      "options": { "colorMode": "value", "graphMode": "none" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "last_over_time(esp32_sign_duration_ms{device_id=~\"$esp32_device\"}[5m])",
+          "legendFormat": "{{sign_alg}}"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Falhas de assinatura (acumulado)",
+      "description": "Incrementa quando ML-DSA on-device falha (C4)",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 10 }
+            ]
+          }
+        }
+      },
+      "options": { "colorMode": "background", "graphMode": "area" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "esp32_sign_fail_total{device_id=~\"$esp32_device\"}",
+          "legendFormat": "ESP32 · {{device_id}}"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Wi-Fi RSSI (último)",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "dBm" } },
+      "options": { "colorMode": "value", "graphMode": "none" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "esp32_wifi_rssi_dbm{device_id=~\"$esp32_device\"}",
+          "legendFormat": "ESP32 · {{device_id}}"
         }
       ]
     },
     {
       "type": "timeseries",
-      "title": "RAM usada por host (bytes)",
+      "title": "Memória heap — livre e mínimo",
+      "description": "Quanto menor o heap livre, maior o risco de OOM em cargas PQC.",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "fieldConfig": {
+        "defaults": { "unit": "bytes", "custom": { "lineWidth": 2, "fillOpacity": 10 } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Heap mínimo (pico de uso)" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+        ]
+      },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["last", "min", "max"] },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
       "targets": [
         {
           "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes",
-          "legendFormat": "{{instance}}"
+          "expr": "esp32_heap_free{device_id=~\"$esp32_device\"}",
+          "legendFormat": "Heap livre — ESP32 · {{device_id}} · {{scenario}}"
+        },
+        {
+          "refId": "B",
+          "expr": "esp32_heap_min{device_id=~\"$esp32_device\"}",
+          "legendFormat": "Heap mínimo (pico de uso) — ESP32 · {{device_id}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Tempo de assinatura na borda (ms)",
+      "description": "Total = NVS + hash + DRBG + sign + base64. Cripto = só mbedtls_pk_sign (C3).",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "ms", "custom": { "lineWidth": 2 } },
+        "overrides": [
+          {
+            "matcher": { "id": "byRegexp", "options": "/.*só cripto.*/" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }, { "id": "custom.lineStyle", "value": { "dash": [10, 10], "fill": "dash" } }]
+          }
+        ]
+      },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["last", "mean", "max"] },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "esp32_sign_duration_ms{device_id=~\"$esp32_device\"}",
+          "legendFormat": "Tempo total assinatura — ESP32 · {{device_id}} · {{sign_alg}} · {{scenario}}"
+        },
+        {
+          "refId": "B",
+          "expr": "esp32_sign_duration_crypto_ms{device_id=~\"$esp32_device\"}",
+          "legendFormat": "Tempo só cripto (pk_sign) — ESP32 · {{device_id}} · {{sign_alg}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Wi-Fi — intensidade do sinal (RSSI)",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 13 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dBm",
+          "custom": { "lineWidth": 2 },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": -75 },
+              { "color": "green", "value": -65 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "calcs": ["last"] }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "esp32_wifi_rssi_dbm{device_id=~\"$esp32_device\"}",
+          "legendFormat": "RSSI Wi-Fi — ESP32 · {{device_id}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Carga CPU estimada no firmware (loop principal)",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 13 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100 } },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "calcs": ["last", "mean"] }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "esp32_cpu_percent{device_id=~\"$esp32_device\"}",
+          "legendFormat": "CPU estimada — ESP32 · {{device_id}} · {{scenario}}"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "PC de laboratório — host de desenvolvimento",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 20 },
+      "collapsed": false
+    },
+    {
+      "type": "timeseries",
+      "title": "CPU do host (%)",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 21 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100 } },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["last", "mean", "max"] }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\",job=\"node-host\"}[1m])) * 100)",
+          "legendFormat": "PC laboratório — CPU %"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "RAM usada no host",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 21 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "bytes" } },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["last", "max"] }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "node_memory_MemTotal_bytes{job=\"node-host\"} - node_memory_MemAvailable_bytes{job=\"node-host\"}",
+          "legendFormat": "PC laboratório — RAM em uso"
         }
       ]
     },
     {
       "type": "timeseries",
       "title": "Rede do host (bytes/s)",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 21 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
-      "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
+      "fieldConfig": { "defaults": { "unit": "Bps" } },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["last", "mean"] }
+      },
       "targets": [
         {
           "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "rate(node_network_receive_bytes_total{device!~\"lo\"}[1m])",
-          "legendFormat": "rx {{device}}"
+          "expr": "rate(node_network_receive_bytes_total{job=\"node-host\",device!~\"lo|docker.*|veth.*\"}[1m])",
+          "legendFormat": "PC lab — rede RX · interface {{device}}"
         },
         {
           "refId": "B",
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "rate(node_network_transmit_bytes_total{device!~\"lo\"}[1m])",
-          "legendFormat": "tx {{device}}"
+          "expr": "rate(node_network_transmit_bytes_total{job=\"node-host\",device!~\"lo|docker.*|veth.*\"}[1m])",
+          "legendFormat": "PC lab — rede TX · interface {{device}}"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Raspberry Pi 4 — borda (node_exporter)",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 29 },
+      "collapsed": false
+    },
+    {
+      "type": "timeseries",
+      "title": "CPU do Raspberry Pi (%)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 30 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100 } },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "calcs": ["last", "mean"] },
+        "noDataMessage": "Sem target Pi — configure prometheus/targets/pi.json"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\",job=\"raspberry-pi\"}[1m])) * 100)",
+          "legendFormat": "Raspberry Pi 4 — CPU % · {{instance}}"
         }
       ]
     },
     {
       "type": "timeseries",
-      "title": "CPU containers Fabric (cAdvisor)",
+      "title": "RAM usada no Raspberry Pi",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 30 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
-      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "fieldConfig": { "defaults": { "unit": "bytes" } },
+      "options": {
+        "noDataMessage": "Sem target Pi — configure prometheus/targets/pi.json"
+      },
       "targets": [
         {
           "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "rate(container_cpu_usage_seconds_total{name=~\".*peer.*|.*orderer.*|.*iomt.*\"}[1m])",
-          "legendFormat": "{{name}}"
+          "expr": "node_memory_MemTotal_bytes{job=\"raspberry-pi\"} - node_memory_MemAvailable_bytes{job=\"raspberry-pi\"}",
+          "legendFormat": "Raspberry Pi 4 — RAM em uso · {{instance}}"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Hyperledger Fabric — containers Docker (Telegraf)",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 38 },
+      "collapsed": false
+    },
+    {
+      "type": "timeseries",
+      "title": "CPU dos containers Fabric / IoMT",
+      "description": "Peers, orderer, chaincode CCAAS e stack IoMT (via Telegraf + Docker API).",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 39 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0 } },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["last", "mean", "max"] }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "docker_container_cpu_usage_percent{job=\"telegraf\",cpu=\"cpu-total\",container_name=~\"peer0.*|orderer.*|peer0org.*|iomt-.*\"}",
+          "legendFormat": "{{container_name}}"
         }
       ]
     },
     {
       "type": "timeseries",
-      "title": "ESP32 — heap livre (bytes)",
+      "title": "RAM dos containers Fabric / IoMT",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 39 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "fieldConfig": { "defaults": { "unit": "bytes" } },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["last", "max"] }
+      },
       "targets": [
         {
           "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "esp32_heap_free",
-          "legendFormat": "{{device_id}}"
-        }
-      ]
-    },
-    {
-      "type": "timeseries",
-      "title": "ESP32 — tempo de assinatura (ms)",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
-      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "esp32_sign_duration_ms",
-          "legendFormat": "{{device_id}} ({{sign_alg}})"
+          "expr": "docker_container_mem_usage{job=\"telegraf\",container_name=~\"peer0.*|orderer.*|peer0org.*|iomt-.*\"}",
+          "legendFormat": "{{container_name}}"
         }
       ]
     }

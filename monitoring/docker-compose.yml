@@ -61,11 +61,17 @@ services:
     privileged: true
     devices:
       - /dev/kmsg
+    command:
+      # overlayfs + cgroup v2: desabilitar métricas de disco que exigem layerdb (senão containers não aparecem)
+      - '--housekeeping_interval=10s'
+      - '--disable_metrics=disk,diskIO,percpu,sched,process,udp'
+      - '--store_container_labels=true'
+      - '--whitelisted_container_labels=com.docker.compose.service,com.docker.compose.project'
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
     ports:
       - "127.0.0.1:8080:8080"
@@ -85,8 +91,10 @@ services:
     container_name: iomt-telegraf
     restart: unless-stopped
     profiles: ["mqtt", "full"]
+    user: "0:986"
     volumes:
       - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:
       - "127.0.0.1:9273:9273"
     depends_on:

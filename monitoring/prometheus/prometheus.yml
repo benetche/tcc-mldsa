@@ -23,12 +23,12 @@ scrape_configs:
         labels:
           role: fabric-docker
 
-  # Ponte ESP32-D (MQTT → Telegraf → Prometheus). Up apenas com --profile mqtt.
-  - job_name: esp32-telegraf
+  # Telegraf: ESP32 (MQTT) + Docker (containers Fabric/IoMT). Perfil mqtt.
+  - job_name: telegraf
     static_configs:
       - targets: ['telegraf:9273']
         labels:
-          role: esp32-bridge
+          role: iomt-telegraf
 
   # Raspberry Pi (node_exporter). Solte um JSON em targets/ (ver pi.example.json).
   - job_name: raspberry-pi
