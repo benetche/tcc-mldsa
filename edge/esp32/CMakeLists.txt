@@ -1,0 +1,5 @@
+# Projeto ESP-IDF — borda IoMT (cenários C3/C4)
+cmake_minimum_required(VERSION 3.16)
+
+include($ENV{IDF_PATH}/project.cmake)
+project(iomt-esp32)

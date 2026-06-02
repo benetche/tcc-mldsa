@@ -1,0 +1,49 @@
+menu "IoMT ESP32 (TCC)"
+
+    choice IOMT_SCENARIO
+        prompt "Cenário experimental"
+        default IOMT_SCENARIO_C3
+        help
+            C3 = baseline ECDSA (esp32_direct).
+            C4 = ML-DSA (tentativa on-device; fallback documentado se falhar).
+
+        config IOMT_SCENARIO_C3
+            bool "C3 — baseline ECDSA-P256"
+        config IOMT_SCENARIO_C4
+            bool "C4 — ML-DSA-65 (experimental)"
+    endchoice
+
+    config IOMT_DEVICE_ID
+        string "Device ID IoMT"
+        default "esp32-ward-01"
+        help
+            Usado em tópicos MQTT e observações on-chain.
+
+    config IOMT_WIFI_SSID
+        string "WiFi SSID"
+        default "iomt-lab"
+
+    config IOMT_WIFI_PASSWORD
+        string "WiFi password"
+        default ""
+        help
+            Preferir secrets.h (gitignored) em produção de laboratório.
+
+    config IOMT_MQTT_BROKER_URI
+        string "MQTT broker URI"
+        default "mqtt://<IP_BROKER>:1883"
+        help
+            Broker Mosquitto do stack monitoring/ (host de laboratório).
+
+    config IOMT_PUBLISH_INTERVAL_MS
+        int "Intervalo entre publicações (ms)"
+        default 5000
+        range 1000 60000
+
+    config IOMT_SIGNING_MODE
+        string "signing_mode (metadata)"
+        default "esp32_direct"
+        help
+            Registrado em cada observação para benchmarks.
+
+endmenu
