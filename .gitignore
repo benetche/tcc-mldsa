@@ -14,6 +14,7 @@ wallet/
 organizations/*/peerOrganizations/*/users/**/msp/keystore/*
 !**/.gitkeep
 
+# Monografia LaTeX (privada — não publicar no repositório remoto)
 monografia/
 
 # jq baixado localmente (ensure-jq.sh)
