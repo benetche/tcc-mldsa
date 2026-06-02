@@ -35,15 +35,30 @@ menu "IoMT ESP32 (TCC)"
         help
             Broker Mosquitto do stack monitoring/ (host de laboratório).
 
+    choice IOMT_PUBLISH_PRESET
+        prompt "Preset de intervalo (paridade hospital-low/high no ESP)"
+        default IOMT_PUBLISH_PRESET_LOW
+        help
+            hospital-low no YAML usa 500ms no Pi; no ESP32 o gargalo é assinatura (~150ms).
+            high usa ~1s no ESP (stress sem saturar CPU).
+
+        config IOMT_PUBLISH_PRESET_LOW
+            bool "hospital-low (~5s)"
+        config IOMT_PUBLISH_PRESET_HIGH
+            bool "hospital-high (~1s)"
+    endchoice
+
     config IOMT_PUBLISH_INTERVAL_MS
         int "Intervalo entre publicações (ms)"
-        default 5000
-        range 1000 60000
+        default 5000 if IOMT_PUBLISH_PRESET_LOW
+        default 1000 if IOMT_PUBLISH_PRESET_HIGH
+        range 500 60000
 
     config IOMT_SIGNING_MODE
         string "signing_mode (metadata)"
-        default "esp32_direct"
+        default "esp32_direct" if IOMT_SCENARIO_C3
+        default "esp32_payload_only" if IOMT_SCENARIO_C4
         help
-            Registrado em cada observação para benchmarks.
+            C3: assinatura ECDSA on-device. C4: stub ML-DSA → payload_only + relay MQTT.
 
 endmenu

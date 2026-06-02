@@ -53,7 +53,10 @@ class Esp32Observation:
 
 def effective_signing_mode(obs: Esp32Observation) -> str:
     """Modo efetivo para metadata (fallback C4 sem assinatura on-device)."""
-    if obs.device_signature and obs.sign_alg:
+    raw = obs.raw
+    if raw.get("sign_ok") is False:
+        return "esp32_payload_only"
+    if obs.device_signature and obs.sign_alg and raw.get("sign_ok") is not False:
         return obs.signing_mode or "esp32_direct"
     if obs.signing_mode == "esp32_direct" and not obs.device_signature:
         return "esp32_payload_only"

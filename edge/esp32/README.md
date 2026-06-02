@@ -86,11 +86,19 @@ Firmware C4 publica sem assinatura PQC; relay classifica `esp32_payload_only`:
 MQTT_HOST=<IP_PC> ./scripts/smoke-c4-relay.sh   # rede mldsa
 ```
 
+### Build por cenário/carga
+
+```bash
+./scripts/build-scenario.sh C3 low    # C3 + intervalo ~5s
+./scripts/build-scenario.sh C4 high # C4 + intervalo ~1s (FLASH=1 para gravar)
+FLASH=1 ESPPORT=/dev/ttyUSB0 ./scripts/build-scenario.sh C3 low
+```
+
 ### Benchmarks
 
 ```bash
 MQTT_HOST=<IP_PC> ./scripts/run-esp32-benchmark.sh C3 hospital-low
-# ou: export IOMT_ESP32_BRIDGE=mqtt && ./benchmarks/scripts/run_suite.sh --scenario C3 --samples 30
+MQTT_HOST=<IP_PC> ./scripts/run-esp32-benchmark-all.sh   # C3+C4 × low/high
 ```
 
 Payload MQTT usa `recorded_at` em **RFC3339** (UTC) após SNTP no Wi-Fi.

@@ -33,7 +33,9 @@ void app_main(void)
         memset(&sign, 0, sizeof(sign));
         esp_err_t sign_err = iomt_sign_payload(obs.payload_hash, &sign);
         if (sign_err != ESP_OK) {
-            ESP_LOGW(TAG, "assinatura: %s", esp_err_to_name(sign_err));
+            telemetry_record_sign_failure();
+            ESP_LOGW(TAG, "assinatura: %s (mode=%s)", esp_err_to_name(sign_err),
+                     iomt_effective_signing_mode(&sign));
         }
 
         iomt_telemetry_t telem = telemetry_collect();

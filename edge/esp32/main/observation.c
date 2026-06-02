@@ -1,5 +1,6 @@
 #include "observation.h"
 
+#include "edge_sign.h"
 #include "iomt_config.h"
 
 #include "esp_err.h"
@@ -59,6 +60,8 @@ int observation_format_mqtt(char *buf, size_t buflen, const iomt_observation_t *
 {
     const char *sign_alg = sign->err == ESP_OK ? sign->alg : IOMT_SIGN_ALG_TARGET;
     const char *sig = sign->err == ESP_OK ? sign->signature_b64 : "";
+    const char *mode = iomt_effective_signing_mode(sign);
+    int sign_ok = (sign->err == ESP_OK && sig[0] != '\0') ? 1 : 0;
     char recorded_at[32];
     observation_recorded_at_rfc3339(recorded_at, sizeof(recorded_at));
 
@@ -68,6 +71,7 @@ int observation_format_mqtt(char *buf, size_t buflen, const iomt_observation_t *
         "\"scenario\":\"%s\","
         "\"network\":\"%s\","
         "\"signing_mode\":\"%s\","
+        "\"sign_ok\":%s,"
         "\"observation_id\":\"%s\","
         "\"device_id\":\"%s\","
         "\"payload_hash\":\"%s\","
@@ -76,6 +80,6 @@ int observation_format_mqtt(char *buf, size_t buflen, const iomt_observation_t *
         "\"deviceSignature\":\"%s\","
         "\"vital\":%s"
         "}",
-        IOMT_SCENARIO_ID, IOMT_NETWORK, IOMT_SIGNING_MODE, obs->observation_id,
+        IOMT_SCENARIO_ID, IOMT_NETWORK, mode, sign_ok ? "true" : "false", obs->observation_id,
         IOMT_DEVICE_ID, obs->payload_hash, recorded_at, sign_alg, sig, obs->vital_json);
 }

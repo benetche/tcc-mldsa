@@ -2,6 +2,7 @@
 
 #include "esp_log.h"
 #include "esp_random.h"
+#include "esp_timer.h"
 #include "mbedtls/base64.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/ecdsa.h"
@@ -113,7 +114,7 @@ esp_err_t iomt_sign_ecdsa_p256(const char *payload_hash, iomt_sign_result_t *out
     mbedtls_ctr_drbg_context ctr;
     mbedtls_entropy_init(&entropy);
     mbedtls_ctr_drbg_init(&ctr);
-  const char *pers_sign = "iomt-ecdsa-sign";
+    const char *pers_sign = "iomt-ecdsa-sign";
     int ret = mbedtls_ctr_drbg_seed(&ctr, mbedtls_entropy_func, &entropy,
                                     (const unsigned char *)pers_sign, strlen(pers_sign));
     if (ret != 0) {
@@ -125,8 +126,10 @@ esp_err_t iomt_sign_ecdsa_p256(const char *payload_hash, iomt_sign_result_t *out
 
     unsigned char sig_der[128];
     size_t sig_len = 0;
+    int64_t t_crypto = esp_timer_get_time();
     ret = mbedtls_pk_sign(&pk, MBEDTLS_MD_SHA256, hash, sizeof(hash), sig_der,
                           sizeof(sig_der), &sig_len, mbedtls_ctr_drbg_random, &ctr);
+    out->duration_crypto_us = esp_timer_get_time() - t_crypto;
     mbedtls_pk_free(&pk);
     mbedtls_ctr_drbg_free(&ctr);
     mbedtls_entropy_free(&entropy);

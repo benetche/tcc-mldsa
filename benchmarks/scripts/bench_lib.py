@@ -220,7 +220,9 @@ def _run_esp32_mqtt_benchmark(
     latencies: list[float] = []
     sent = errors = 0
     total_tx = warmup_tx + sample_tx
-    timeout_s = max(interval_ms / 1000.0 * 3, 15.0)
+    # ESP publica a cada 1–5s (firmware); YAML hospital-low=500ms não se aplica ao dispositivo
+    timeout_s = float(os.environ.get("MQTT_WAIT_TIMEOUT", "25"))
+    timeout_s = max(timeout_s, interval_ms / 1000.0 * 3, 15.0)
     effective_modes: list[str] = []
 
     for i in range(total_tx):

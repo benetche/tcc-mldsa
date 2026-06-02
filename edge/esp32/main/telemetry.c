@@ -7,11 +7,18 @@
 
 static uint32_t s_idle_ticks = 0;
 static uint32_t s_loop_ticks = 0;
+static uint32_t s_sign_fail_total = 0;
 
 void telemetry_init(void)
 {
     s_idle_ticks = 0;
     s_loop_ticks = 0;
+    s_sign_fail_total = 0;
+}
+
+void telemetry_record_sign_failure(void)
+{
+    s_sign_fail_total++;
 }
 
 void telemetry_tick_loop(void)
@@ -39,5 +46,6 @@ iomt_telemetry_t telemetry_collect(void)
     /* Contadores aproximados — refinados com esp_netif_stats futuramente */
     t.net_tx_bytes = s_loop_ticks * 64;
     t.net_rx_bytes = s_idle_ticks * 64;
+    t.sign_fail_total = s_sign_fail_total;
     return t;
 }

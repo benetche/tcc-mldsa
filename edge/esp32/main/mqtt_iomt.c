@@ -1,5 +1,6 @@
 #include "mqtt_iomt.h"
 
+#include "edge_sign.h"
 #include "iomt_config.h"
 
 #include "esp_log.h"
@@ -62,9 +63,12 @@ esp_err_t mqtt_iomt_publish_metrics(const iomt_telemetry_t *t, const iomt_sign_r
         return ESP_ERR_INVALID_STATE;
     }
     const char *sign_alg = (sign->err == ESP_OK) ? sign->alg : IOMT_SIGN_ALG_TARGET;
+    const char *mode = iomt_effective_signing_mode(sign);
     float sign_ms = (float)sign->duration_us / 1000.0f;
+    float sign_crypto_ms = (float)sign->duration_crypto_us / 1000.0f;
+    int sign_ok = (sign->err == ESP_OK && sign->signature_b64[0] != '\0') ? 1 : 0;
 
-    char payload[384];
+    char payload[448];
     int n = snprintf(
         payload, sizeof(payload),
         "{"
@@ -77,14 +81,18 @@ esp_err_t mqtt_iomt_publish_metrics(const iomt_telemetry_t *t, const iomt_sign_r
         "\"net_tx_bytes\":%lu,"
         "\"net_rx_bytes\":%lu,"
         "\"sign_alg\":\"%s\","
+        "\"sign_ok\":%s,"
         "\"sign_duration_ms\":%.1f,"
+        "\"sign_duration_crypto_ms\":%.1f,"
+        "\"sign_fail_total\":%lu,"
         "\"scenario\":\"%s\","
         "\"signing_mode\":\"%s\""
         "}",
         IOMT_DEVICE_ID, (long long)(esp_timer_get_time() / 1000000), (unsigned long)t->heap_free,
         (unsigned long)t->heap_min, t->cpu_percent, (int)t->wifi_rssi_dbm,
-        (unsigned long)t->net_tx_bytes, (unsigned long)t->net_rx_bytes, sign_alg, sign_ms,
-        IOMT_SCENARIO_ID, IOMT_SIGNING_MODE);
+        (unsigned long)t->net_tx_bytes, (unsigned long)t->net_rx_bytes, sign_alg,
+        sign_ok ? "true" : "false", sign_ms, sign_crypto_ms, (unsigned long)t->sign_fail_total,
+        IOMT_SCENARIO_ID, mode);
     if (n <= 0 || n >= (int)sizeof(payload)) {
         return ESP_ERR_NO_MEM;
     }
