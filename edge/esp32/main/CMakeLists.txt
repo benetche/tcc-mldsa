@@ -1,0 +1,19 @@
+idf_component_register(
+    SRCS
+        "main.c"
+        "wifi_manager.c"
+        "mqtt_iomt.c"
+        "edge_sign_ecdsa.c"
+        "edge_sign_mldsa.c"
+        "edge_sign_dispatch.c"
+        "telemetry.c"
+        "observation.c"
+    INCLUDE_DIRS "."
+    REQUIRES
+        nvs_flash
+        esp_wifi
+        esp_netif
+        esp_event
+        mqtt
+        mbedtls
+)

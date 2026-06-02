@@ -14,10 +14,10 @@ check_yaml "${ROOT}/benchmarks/scenarios/c4-esp32-mldsa.yaml"
 
 cat <<EOF
 {
-  "status": "hardware_pending",
+  "status": "firmware_scaffold",
   "scenarios": ["C3", "C4"],
   "device": "esp32",
-  "note": "Fixtures YAML presentes; firmware e assinatura on-device na Fase P3/P4 com hardware.",
+  "note": "Firmware ESP-IDF presente; C3 ECDSA on-device; C4 ML-DSA pendente; E2E Fabric pendente.",
   "expected_signing": {"C3": "ECDSA-P256", "C4": "ML-DSA-65"}
 }
 EOF

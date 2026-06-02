@@ -5,7 +5,7 @@ Atualizado na branch `feat/f1-pilar-1-infra` (P1.2 concluído).
 | Dispositivo | Status | Cenários | Notas |
 |-------------|--------|----------|-------|
 | **Raspberry Pi 4 Model B** | Validado C1/C2 | C1, C2 | deploy `deploy-to-pi.sh`; smoke C1/C2; FHIR/benchmark no Pi |
-| **ESP32-D** | Pendente | C3, C4 | Documentar em `edge/esp32/`; não bloqueia Pilar 1 |
+| **ESP32-D** | Conectado (CH340 `/dev/ttyUSB0`) | C3, C4 | Firmware ESP-IDF em `edge/esp32/`; C3 ECDSA + MQTT |
 
 ## Raspberry Pi 4 — baseline de laboratório (P1.2)
 
