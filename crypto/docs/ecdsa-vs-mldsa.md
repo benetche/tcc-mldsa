@@ -1,6 +1,6 @@
 # ECDSA P-256 vs ML-DSA-65 (liboqs)
 
-Gerado em: 2026-05-28T17:13:08Z · iterações: 50
+Iterações por algoritmo: 50 (amd64, laboratório)
 
 | Algoritmo | Chave pública (B) | Chave privada (B) | Assinatura (B) | KeyGen (ms) | Sign (ms) | Verify (ms) |
 

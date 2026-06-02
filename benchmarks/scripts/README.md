@@ -1,7 +1,9 @@
 # Scripts de benchmark (Pilar 4)
 
 Suíte **C1–C4** × `hospital-low` / `hospital-high` com paridade experimental.
-Reaproveita a ingestão FHIR do Pilar 3 (`scripts/ingestion`, `iomt_fhir`).
+Reaproveita a ingestão FHIR (`scripts/ingestion`, `iomt_fhir`).
+
+Estado da coleta: [docs/estado-do-projeto.md](../../docs/estado-do-projeto.md) · Relatório: [relatorio-pqc-iomt.md](../reports/relatorio-pqc-iomt.md).
 
 ## Componentes
 
@@ -41,8 +43,8 @@ benchmarks/results/<timestamp>-Cx-load/
   resources.csv   # amostras CPU%/RAM
 ```
 
-Dados brutos em `results/` são **gitignored**. Cenários ESP32 sem hardware
-geram `status: hardware_pending` (nunca omitidos — robustez C1–C4).
+Dados brutos em `results/` são **gitignored**. Sem hardware ESP32, o runner
+registra `hardware_pending` (cenário não omitido na orquestração).
 
 ## ESP32 (C3/C4)
 

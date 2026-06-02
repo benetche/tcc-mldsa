@@ -1,6 +1,8 @@
 # Fabric baseline (ECDSA)
 
-Rede **Hyperledger Fabric** permissionada de laboratório — perfil **baseline** (`network=baseline`).
+Rede **Hyperledger Fabric** permissionada de laboratório — perfil **baseline** (`network=baseline`). Cenário **C1** no Raspberry Pi.
+
+Documentação geral: [docs/estado-do-projeto.md](../../docs/estado-do-projeto.md).
 
 ## Pré-requisitos
 

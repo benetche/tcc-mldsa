@@ -6,10 +6,10 @@ Objetivo: **executar e analisar todos os cenários C1–C4** para comparar ECDSA
 
 | ID | Rede | Dispositivo | Assinatura alvo | Status mínimo para TCC |
 |----|------|-------------|-----------------|------------------------|
-| **C1** | Baseline (ECDSA) | Raspberry Pi 4 | Cliente Fabric no Pi | E2E confirmado + benchmarks |
-| **C2** | ML-DSA | Raspberry Pi 4 | Cliente Fabric no Pi | E2E confirmado + benchmarks |
-| **C3** | Baseline (ECDSA) | ESP32-D | No ESP32 (payload ou tx) | E2E ou falha documentada + benchmarks |
-| **C4** | ML-DSA | ESP32-D | No ESP32 (payload ou tx) | E2E ou falha documentada + benchmarks |
+| **C1** | Baseline (ECDSA) | Raspberry Pi 4 | Cliente Fabric no Pi | Concluído |
+| **C2** | ML-DSA | Raspberry Pi 4 | Cliente Fabric no Pi | Concluído |
+| **C3** | Baseline (ECDSA) | ESP32-D | `esp32_direct` (ECDSA on-device) | Concluído |
+| **C4** | ML-DSA | ESP32-D | `esp32_payload_only` (ML-DSA direto N/A) | Concluído |
 
 Nenhum cenário pode ser omitido sem **evidência reproduzível** (logs, heap, taxa de falha). Falha em C4 no ESP32 **não invalida** o TCC se quantificada; **omitir** o cenário sem tentativa invalida a robustez declarada.
 
@@ -61,13 +61,14 @@ Configuração em `benchmarks/scenarios/` (ver README).
 
 ## Critério de conclusão do Pilar 4
 
-- [ ] Dados brutos para **C1, C2, C3, C4** × `hospital-low` e `hospital-high`
-- [ ] Relatório com tabelas **C1↔C2** e **C3↔C4** e discussão cruzada Pi vs ESP32
-- [ ] `signing_mode` documentado por run ESP32
-- [ ] Reprodução: um comando executa suíte completa (`run_suite.sh --all`)
+- [x] Dados brutos para **C1, C2, C3, C4** × `hospital-low` e `hospital-high` (≥30 amostras)
+- [x] Relatório com tabelas **C1↔C2** e **C3↔C4** — [relatorio-pqc-iomt.md](../benchmarks/reports/relatorio-pqc-iomt.md)
+- [x] `signing_mode` documentado por run ESP32 (C4: `esp32_payload_only`)
+- [x] Reprodução via `run_suite.sh --all` e análise com `analyze.py`
 
 ## Referências
 
+- Estado do projeto: [estado-do-projeto.md](estado-do-projeto.md)
 - Paridade: [paridade-experimental.md](paridade-experimental.md)
-- Metodologia de benchmarks: [benchmarks/scripts/README.md](../benchmarks/scripts/README.md)
-- Decisões de stack: [decisoes-stack.md](decisoes-stack.md)
+- Scripts: [benchmarks/scripts/README.md](../benchmarks/scripts/README.md)
+- Stack: [decisoes-stack.md](decisoes-stack.md)

@@ -1,65 +1,54 @@
 # Monitoramento — Pilar 5 (opcional)
 
-Stack: **Prometheus + Grafana** (hosts e Raspberry Pi) + **MQTT (Mosquitto) + Telegraf** (ESP32-D).
+Stack **Prometheus + Grafana** para PC e Raspberry Pi, e **MQTT + Telegraf** para métricas do ESP32-D. Complementa benchmarks pontuais com séries temporais; não substitui `benchmarks/results/`.
+
+Arquitetura: [docs/arquitetura-observabilidade.md](docs/arquitetura-observabilidade.md).
 
 ## Início rápido
 
 ```bash
 cd monitoring
-cp .env.example .env        # ajuste credenciais do Grafana
+cp .env.example .env
 
-# Núcleo: Prometheus + Grafana + node-exporter + cAdvisor
 docker compose up -d
+docker compose --profile mqtt up -d   # Mosquitto + Telegraf (ESP32)
 
-# + ponte ESP32/MQTT (Mosquitto + Telegraf)
-docker compose --profile mqtt up -d
-
-# Validação
 ./scripts/health-monitoring.sh
 ```
 
-- Grafana: http://127.0.0.1:3000 (admin/admin por padrão; dashboard **IoMT — Monitoramento do laboratório**)
-  - Seções: **ESP32-D**, **PC laboratório**, **Raspberry Pi 4**, **Fabric (Docker / Telegraf)**
-  - Legendas: `ESP32 · {device_id}`, `PC laboratório`, `Fabric · {container}`, etc.
-  - Variável de filtro: `ESP32 (device_id)`
-- Prometheus: http://127.0.0.1:9090
+| Serviço | URL local |
+|---------|-----------|
+| Grafana | http://127.0.0.1:3000 |
+| Prometheus | http://127.0.0.1:9090 |
 
-## Alvos de coleta
+Dashboard: **IoMT — Monitoramento do laboratório** (ESP32, PC, Pi, containers Fabric).
 
-| Dispositivo | Mecanismo | Porta |
-|-------------|-----------|-------|
-| PC / VM lab | node-exporter (container) | 9100 |
-| Containers Fabric / IoMT | Telegraf `inputs.docker` (Docker API) | 9273 |
+## Alvos
+
+| Origem | Coleta | Porta |
+|--------|--------|-------|
+| PC / VM | node-exporter (container) | 9100 |
+| Docker (Fabric, CCAAS) | Telegraf `inputs.docker` | 9273 |
 | Raspberry Pi | node_exporter (systemd) | 9100 |
-| ESP32-D | MQTT → Telegraf → Prometheus | 1883 / 9273 |
+| ESP32-D | MQTT → Telegraf | 1883 → 9273 |
 
-> **Fabric no Grafana:** o cAdvisor neste host (cgroup v2 + overlayfs) não expõe o label `name` dos containers; as métricas de CPU/RAM dos peers/orderer/chaincode vêm do **Telegraf** (`docker_container_*`). O serviço `telegraf` precisa do GID do grupo `docker` no host (`user: "0:986"` em `docker-compose.yml` — ajuste `986` se `getent group docker` for outro).
+**Pi:** `sudo edge/raspberry-pi/scripts/install-node-exporter.sh`  
+**Prometheus:** copiar `prometheus/targets/pi.json.example` → `pi.json` com `<PI_HOST>`.
 
-### Raspberry Pi
+**Fabric no Grafana:** métricas de containers via Telegraf (`docker_container_*`). Ajustar GID do grupo `docker` em `docker-compose.yml` se necessário (`getent group docker`).
 
-No Pi: `sudo edge/raspberry-pi/scripts/install-node-exporter.sh`
-No PC: copie `prometheus/targets/pi.json.example` → `prometheus/targets/pi.json`
-com o IP do Pi (o file_sd carrega automaticamente; só `*.json` é lido).
-
-### ESP32-D (sem hardware)
-
-Simule métricas para validar a ponte:
+## ESP32 sem hardware físico
 
 ```bash
 docker compose --profile mqtt up -d
 python3 scripts/mqtt-esp32-simulator.py --count 10 --interval 2
-# (ou, sem paho-mqtt:)  python3 scripts/mqtt-esp32-simulator.py --via-docker
 ```
 
-Contrato do payload: [edge/esp32/docs/METRICAS-MQTT.md](../edge/esp32/docs/METRICAS-MQTT.md).
+Contrato MQTT: [edge/esp32/docs/METRICAS-MQTT.md](../edge/esp32/docs/METRICAS-MQTT.md).
 
-## Documentação
+## Segurança
 
-- [Arquitetura e portas](docs/arquitetura-observabilidade.md)
-- Arquitetura: [docs/arquitetura-observabilidade.md](docs/arquitetura-observabilidade.md)
-
-## Segurança (laboratório)
-
-Binds em `127.0.0.1` para Grafana/Prometheus/cAdvisor/Telegraf. MQTT/node-exporter
-expostos na rede do lab (isolada). Sem PHI nos painéis. Dados de séries temporais
-(`monitoring/data/`, volumes Docker) **não** são versionados.
+- Binds `127.0.0.1` para UI e Prometheus no PC
+- MQTT/node_exporter na VLAN de laboratório
+- Sem PHI nos painéis
+- `monitoring/data/` e volumes Docker não versionados

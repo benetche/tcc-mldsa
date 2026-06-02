@@ -1,50 +1,51 @@
-# Cloud Agents — TCC ML-DSA + Fabric + IoMT
+# Instruções para agentes (Cursor / cloud)
 
-Instruções para agentes Cursor em ambiente cloud/ephemeral. A pasta `.cursor/` é **gitignored** (uso local); siga a documentação versionada em `docs/`.
+Repositório do TCC **ML-DSA + Hyperledger Fabric + IoMT**. Documentação versionada em `docs/`; pasta `.cursor/` é **gitignored** (uso local).
 
-## Projeto
+## Contexto obrigatório
 
-Blockchain permissionada **Hyperledger Fabric** com assinaturas **ML-DSA (Dilithium)** via **liboqs/BCCSP**, ingestão **MIMIC-IV/FHIR** para **IoMT**, benchmarks **ECDSA vs ML-DSA**.
+1. [docs/estado-do-projeto.md](docs/estado-do-projeto.md) — status por pilar e C1–C4
+2. [docs/decisoes-stack.md](docs/decisoes-stack.md) — stack e limitações PQC
+3. [docs/cenarios-experimentais.md](docs/cenarios-experimentais.md) — matriz e hipóteses
+4. [docs/paridade-experimental.md](docs/paridade-experimental.md) — regras de benchmark
 
-## Setup mínimo (quando código existir)
+## Setup mínimo
 
 ```bash
-# Dependências comuns (ajustar versões conforme docs/decisoes-stack.md)
 sudo apt-get update && sudo apt-get install -y docker.io docker-compose-plugin git golang-go python3 python3-pip
-
-# Fabric baseline (exemplo — ver fabric/baseline/README.md)
-cd fabric/baseline && ./network.sh up createChannel
+cd fabric/baseline && ./scripts/bootstrap-samples.sh && ./scripts/network-up.sh
 ```
 
-## Variáveis de ambiente (placeholders — nunca valores reais)
+## Variáveis (placeholders — nunca valores reais no git)
 
 ```bash
-export MIMIC_DATA_PATH=/path/to/local/mimic  # fora do git
+export MIMIC_DATA_PATH=/path/to/local/mimic
 export PHYSIONET_USER=placeholder
 export PHYSIONET_PASSWORD=placeholder
-export FABRIC_NETWORK=baseline  # ou mldsa
+export FABRIC_NETWORK=baseline   # ou mldsa
+export MQTT_HOST=<IP_DO_BROKER>  # scripts ESP32
 ```
 
 ## Estrutura
 
 | Pasta | Conteúdo |
 |-------|----------|
-| `fabric/` | Redes baseline e ML-DSA |
+| `fabric/` | Redes baseline e mldsa |
 | `crypto/` | liboqs, BCCSP |
-| `health-data/` | Mappings MIMIC, fixtures FHIR |
-| `edge/` | Raspberry Pi, ESP32 |
-| `benchmarks/` | Scripts e relatórios |
-| `monitoring/` | P5 opcional: Prometheus, Grafana, Telegraf |
-| `docs/` | Cenários, paridade, laboratório, decisões de stack |
-
-## Ordem de trabalho
-
-1. [docs/decisoes-stack.md](docs/decisoes-stack.md) e [docs/cenarios-experimentais.md](docs/cenarios-experimentais.md)
-2. Checklist da fase em `.cursor/tasks/` (apenas local, se existir)
-3. Laboratório: [docs/laboratorio-local.md](docs/laboratorio-local.md) — nunca commitar `lab.env` / `secrets.h`
+| `health-data/`, `scripts/ingestion/` | FHIR, cargas hospitalares |
+| `edge/` | Pi (C1/C2), ESP32 (C3/C4) |
+| `benchmarks/` | Suíte e relatórios |
+| `monitoring/` | P5 opcional |
+| `docs/` | Documentação de referência |
 
 ## Segurança
 
 - Rede de laboratório isolada
-- Sem chaves reais, MIMIC bruto ou credenciais no repositório
-- Resultados volumosos em `benchmarks/results/` (gitignored)
+- Não commitar: `lab.env`, `secrets.h`, `sdkconfig`, MIMIC bruto, `benchmarks/results/`, `*.pem` de MSP
+- Matriz **C1–C4** obrigatória; paridade experimental entre baseline e mldsa
+
+## Ordem de trabalho sugerida
+
+1. Ler estado em `docs/estado-do-projeto.md`
+2. Tarefas locais em `.cursor/tasks/` (se existir na máquina do desenvolvedor)
+3. Atualizar documentação em `docs/` e READMEs de módulo após mudanças relevantes

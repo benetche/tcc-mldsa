@@ -361,7 +361,7 @@ Cenários formais (30+ repetições, cargas hospital-low/high):
 | Cenário | Dispositivo | Status |
 |---------|-------------|--------|
 | C3 | ESP32 + rede baseline | Stub — `edge/esp32/scripts/validate-c3-c4-stub.sh` |
-| C4 | ESP32 + rede mldsa | Idem — hardware pendente |
+| C4 | ESP32 + rede mldsa | Ver `edge/esp32/README.md` (fallback `esp32_payload_only`) |
 
 Quando o ESP32 estiver disponível, o fluxo previsto espelha o Pi: assinatura no dispositivo + gateway Pi ou cliente direto. Ver `edge/esp32/README.md`.
 

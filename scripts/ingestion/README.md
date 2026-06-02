@@ -1,5 +1,7 @@
 # Ingestão hospitalar — FHIR → Fabric
 
+Perfis `hospital-low` e `hospital-high` para a suíte em `benchmarks/scripts/`. Cenários: [docs/cenarios-experimentais.md](../../docs/cenarios-experimentais.md).
+
 ## Setup
 
 ```bash

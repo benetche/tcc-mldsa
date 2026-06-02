@@ -1,6 +1,8 @@
 # Dados de saúde — MIMIC-IV / FHIR R4
 
-Ingestão de sinais vitais para o chaincode `iomt` (Pilar 3).
+Ingestão de sinais vitais para o chaincode `iomt` (Pilar 3). Usado pelos benchmarks com paridade baseline/mldsa.
+
+Estado: [docs/estado-do-projeto.md](../docs/estado-do-projeto.md) · MIMIC: [docs/mimic-acesso.md](../docs/mimic-acesso.md).
 
 ## Estrutura
 

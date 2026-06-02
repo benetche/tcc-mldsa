@@ -1,6 +1,8 @@
 # Raspberry Pi 4 — cliente IoMT (C1 / C2)
 
-Dispositivo de borda que submete observações ao chaincode **`iomt`** nas redes Fabric **baseline** (C1) e **mldsa** (C2), com assinatura criptográfica na borda gravada on-chain.
+Dispositivo de borda que submete observações ao chaincode **`iomt`** nas redes Fabric **baseline** (C1) e **mldsa** (C2), com assinatura na borda gravada on-chain.
+
+Estado: [docs/estado-do-projeto.md](../../docs/estado-do-projeto.md).
 
 ## Documentação principal
 

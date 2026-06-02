@@ -2,6 +2,8 @@
 
 Integração **liboqs** com provedor de assinatura alinhado ao **BCCSP** do Hyperledger Fabric.
 
+Estado: [docs/estado-do-projeto.md](../docs/estado-do-projeto.md) · Decisões: [docs/decisoes-stack.md](../docs/decisoes-stack.md) §3.
+
 | Item | Valor |
 |------|--------|
 | Algoritmo | **ML-DSA-65** (Dilithium3, NIST FIPS 204) |

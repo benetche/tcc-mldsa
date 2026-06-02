@@ -1,53 +1,115 @@
 # TCC — Blockchain permissionada pós-quântica para IoMT
 
-Implementação e análise de **Hyperledger Fabric** com **ML-DSA (Dilithium)** substituindo **ECDSA**, voltada ao monitoramento de dispositivos **IoMT** em cenário hospitalar simulado (**MIMIC-IV** + **HL7 FHIR**).
+Implementação e análise de **Hyperledger Fabric** com **ML-DSA (Dilithium)** em substituição ao **ECDSA**, aplicada ao monitoramento **IoMT** em cenário hospitalar simulado (**MIMIC-IV** + **HL7 FHIR**).
 
 ## Objetivo
 
-Medir o impacto da migração pós-quântica em:
+Quantificar o impacto da migração pós-quântica em:
 
-- Tamanho de assinaturas
-- Latência de rede
+- Tamanho de assinaturas e payloads
+- Latência de confirmação (E2E)
 - Vazão (TPS)
-- Consumo de CPU/RAM (Raspberry Pi, ESP32)
+- Consumo de CPU e RAM (Raspberry Pi 4, ESP32-D)
 
-## Quatro pilares
+## Estado atual
 
-| Pilar | Descrição |
-|-------|-----------|
-| **1 — Infraestrutura** | Fabric, rede permissionada, dispositivos de borda |
-| **2 — Criptografia** | liboqs + BCCSP, ML-DSA |
-| **3 — Dados de saúde** | MIMIC-IV, ingestão FHIR |
-| **4 — Benchmarking** | Testes de estresse e análise comparativa |
+A matriz experimental **C1–C4** (Pi e ESP32 × ECDSA e ML-DSA) foi implementada e **coletada** com séries robustas (≥30 amostras por cenário e carga). Resumo completo: **[docs/estado-do-projeto.md](docs/estado-do-projeto.md)**.
 
-## Navegação no repositório
+| Pilar | Conteúdo | Situação |
+|-------|----------|----------|
+| 1 | Fabric baseline + mldsa, borda Pi/ESP32 | Concluído |
+| 2 | liboqs + BCCSP ML-DSA | Concluído |
+| 3 | FHIR, ingestão, chaincode | Concluído |
+| 4 | Benchmarks e relatório | Coleta concluída |
+| 5 | Prometheus/Grafana/MQTT | Opcional, disponível |
+
+## Estrutura do repositório
 
 ```
-fabric/          # baseline (ECDSA) e mldsa
-crypto/          # liboqs, extensão BCCSP
-health-data/     # mappings e fixtures FHIR
-edge/            # raspberry-pi, esp32
-benchmarks/      # cenários, scripts, relatórios
-docs/            # arquitetura, cenários, laboratório, decisões de stack
+fabric/          # Redes baseline (ECDSA) e mldsa (ML-DSA)
+crypto/          # liboqs, BCCSP, benchmarks de primitivas
+health-data/     # Mappings MIMIC→FHIR, fixtures, schemas
+scripts/ingestion/   # Cargas hospitalares e cliente Fabric
+edge/            # raspberry-pi (C1/C2), esp32 (C3/C4)
+benchmarks/      # Cenários YAML, scripts, relatórios
+monitoring/      # Stack opcional de observabilidade
+docs/            # Documentação de referência do TCC
 ```
 
-A pasta `.cursor/` (agentes Cursor, roadmap interno) fica **fora do git** — use localmente se trabalhar com o IDE.
+A pasta `.cursor/` (agentes e roadmap internos do IDE) **não é versionada**.
 
-## Documentação principal
+## Início rápido
 
-- [Decisões de stack](docs/decisoes-stack.md)
-- [Cenários experimentais C1–C4](docs/cenarios-experimentais.md)
-- [Paridade experimental](docs/paridade-experimental.md)
-- [Laboratório local](docs/laboratorio-local.md) — `lab.env` / `secrets.h` (não versionados)
-- [Status de hardware](docs/hardware-status.md)
-- Configs de carga: [benchmarks/scenarios/](benchmarks/scenarios/)
+### Rede Fabric (baseline)
 
-## Cenários experimentais (robustez)
+```bash
+cd fabric/baseline
+./scripts/bootstrap-samples.sh    # uma vez
+./scripts/network-up.sh
+./scripts/deploy-chaincode.sh
+./scripts/test-chaincode.sh
+```
 
-Matriz **2×2 obrigatória**: C1 (Pi+ECDSA), C2 (Pi+ML-DSA), C3 (ESP32+ECDSA), C4 (ESP32+ML-DSA).  
-Detalhes: [docs/cenarios-experimentais.md](docs/cenarios-experimentais.md).
+### Rede ML-DSA
 
-## Status
+```bash
+./crypto/scripts/build-liboqs.sh
+./crypto/scripts/build-fabric-mldsa.sh
+cd fabric/mldsa && ./scripts/build-peer-image.sh && ./scripts/network-up.sh
+```
 
-Branch ativa: **`feat/f1-pilar-1-infra`** — F0/F1/F2 documentados; Fabric baseline + cliente Pi (C1) em implementação.  
-ESP32: ver [hardware-status.md](docs/hardware-status.md).
+### Borda Raspberry Pi (C1 ou C2)
+
+```bash
+cp edge/raspberry-pi/lab.env.example edge/raspberry-pi/lab.env   # editar IPs/credenciais
+cd edge/raspberry-pi && ./scripts/deploy-to-pi.sh
+```
+
+### ESP32 (C3 ou C4)
+
+```bash
+cp edge/esp32/main/secrets.h.example edge/esp32/main/secrets.h
+cd edge/esp32 && ./idf.sh build && ./idf.sh -p /dev/ttyUSB0 flash
+export MQTT_HOST=<IP_DO_BROKER>
+./scripts/smoke-e2e-c3.sh
+```
+
+### Benchmark completo
+
+```bash
+./benchmarks/scripts/run_suite.sh --all
+python3 benchmarks/scripts/analyze.py --glob '*'
+```
+
+## Documentação
+
+| Documento | Descrição |
+|-----------|-----------|
+| [estado-do-projeto.md](docs/estado-do-projeto.md) | Status por pilar e cenário C1–C4 |
+| [decisoes-stack.md](docs/decisoes-stack.md) | Stack técnica e escopo PQC |
+| [arquitetura.md](docs/arquitetura.md) | Topologia Fabric e fluxo de dados |
+| [cenarios-experimentais.md](docs/cenarios-experimentais.md) | Matriz, hipóteses H1–H5, métricas |
+| [paridade-experimental.md](docs/paridade-experimental.md) | Regras baseline ↔ ML-DSA |
+| [laboratorio-local.md](docs/laboratorio-local.md) | Credenciais locais (não versionadas) |
+| [hardware-status.md](docs/hardware-status.md) | Dispositivos e comandos de validação |
+
+READMEs por módulo: `fabric/baseline/`, `fabric/mldsa/`, `crypto/`, `edge/raspberry-pi/`, `edge/esp32/`, `health-data/`, `benchmarks/scripts/`, `monitoring/`.
+
+## Cenários experimentais
+
+| ID | Rede | Dispositivo |
+|----|------|-------------|
+| C1 | ECDSA | Raspberry Pi 4 |
+| C2 | ML-DSA | Raspberry Pi 4 |
+| C3 | ECDSA | ESP32-D |
+| C4 | ML-DSA | ESP32-D (fallback `esp32_payload_only`) |
+
+Configs: [benchmarks/scenarios/](benchmarks/scenarios/). Relatório: [benchmarks/reports/relatorio-pqc-iomt.md](benchmarks/reports/relatorio-pqc-iomt.md).
+
+## Segurança e dados sensíveis
+
+Não versionar: `lab.env`, `secrets.h`, `sdkconfig`, dados MIMIC brutos, `benchmarks/results/`, targets Prometheus com IPs reais, chaves MSP. Ver `.gitignore`.
+
+## Licença e uso acadêmico
+
+Repositório de Trabalho de Conclusão de Curso — rede de **laboratório isolada**, sem chaves de produção nem dados clínicos reais.

@@ -1,6 +1,8 @@
 # ESP32-D — borda IoMT (C3 / C4)
 
-Firmware **ESP-IDF** para cenários **C3** (ECDSA-P256, `esp32_direct`) e **C4** (tentativa ML-DSA-65).
+Firmware **ESP-IDF** para cenários **C3** (ECDSA-P256, `esp32_direct`) e **C4** (ML-DSA on-device inviável → `esp32_payload_only` via relay MQTT).
+
+Estado: [docs/estado-do-projeto.md](../../docs/estado-do-projeto.md) · Laboratório: [docs/laboratorio-local.md](../../docs/laboratorio-local.md).
 
 ## Hardware detectado (lab)
 

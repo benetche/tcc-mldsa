@@ -1,6 +1,8 @@
 # Rede Fabric — ML-DSA (Pilar 2)
 
-Espelho de `fabric/baseline/` com peers **`tcc/fabric-peer-mldsa`** (liboqs + BCCSP ML-DSA).
+Espelho de `fabric/baseline/` com peers **`tcc/fabric-peer-mldsa`** (liboqs + BCCSP ML-DSA). Cenário **C2** no Raspberry Pi.
+
+Documentação geral: [docs/estado-do-projeto.md](../../docs/estado-do-projeto.md).
 
 > Não rode **baseline** e **mldsa** ao mesmo tempo (mesmas portas).
 

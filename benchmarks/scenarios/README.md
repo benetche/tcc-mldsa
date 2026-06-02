@@ -1,6 +1,8 @@
 # Cenários de benchmark — C1 a C4
 
-Todos os cenários da matriz **2×2** (rede × dispositivo) são **obrigatórios** para robustez do TCC.
+Definições YAML da matriz **2×2** (rede × dispositivo). Cada cenário executa as cargas **`hospital-low`** e **`hospital-high`**.
+
+Estado da coleta: [docs/estado-do-projeto.md](../../docs/estado-do-projeto.md).
 
 ## Identificadores
 
@@ -13,40 +15,45 @@ Todos os cenários da matriz **2×2** (rede × dispositivo) são **obrigatórios
 
 ## Cargas hospitalares
 
-| Arquivo | Perfil | Uso |
-|---------|--------|-----|
-| `hospital-low.yaml` | Baixa frequência | Smoke + paridade |
-| `hospital-high.yaml` | Alta frequência | Estresse IoMT |
+| Arquivo | Perfil |
+|---------|--------|
+| `hospital-low.yaml` | Baixa frequência — smoke e paridade |
+| `hospital-high.yaml` | Alta frequência — estresse IoMT |
 
-Cada cenário C1–C4 deve executar **ambas** as cargas.
-
-## Campos esperados no YAML (template)
+## Campos do YAML (referência)
 
 ```yaml
 scenario_id: C1
 network: baseline          # baseline | mldsa
 device: raspberry-pi       # raspberry-pi | esp32
-signing_mode: pi_client    # pi_client | esp32_direct | esp32_payload_only | esp32_gateway
-load_profile: hospital-low # hospital-low | hospital-high
+signing_mode: pi_client    # pi_client | esp32_direct | esp32_payload_only
+load_profile: hospital-low
 duration_minutes: 10
-target_tps: 5              # ajustar conforme F2
+target_tps: 5
 warmup_transactions: 50
 repetitions: 30
 ```
 
-## Execução (previsto)
+## Execução
 
 ```bash
-# Suíte completa — todos os cenários e cargas
+# Suíte completa
 ./benchmarks/scripts/run_suite.sh --all
 
-# Cenário isolado
+# Cenário e carga isolados
 ./benchmarks/scripts/run_suite.sh --scenario C3 --load hospital-high
+
+# Pi remoto
+./benchmarks/scripts/run_suite_pi.sh --deploy C1 hospital-low --samples 30
 ```
 
-## Saída
+## Saída (gitignored)
 
-- `benchmarks/results/<run_id>/metrics.csv`
-- `benchmarks/results/<run_id>/metadata.json`
+```
+benchmarks/results/<run_id>/
+  metadata.json
+  metrics.csv
+  resources.csv
+```
 
-Resultados brutos não são versionados no git (ver `.gitignore`).
+Análise: `python3 benchmarks/scripts/analyze.py --glob '*'`
