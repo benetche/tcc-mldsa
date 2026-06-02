@@ -50,6 +50,16 @@ esac
 
 echo "[build-scenario] ${SCENARIO^^} / hospital-${LOAD} — ${EXTRA[*]}"
 idf.py set-target esp32 2>/dev/null || true
+idf.py "${EXTRA[@]}" reconfigure
+# Garante troca C3↔C4 no sdkconfig (flags -D nem sempre sobrescrevem choice)
+SDK="${ESP_ROOT}/sdkconfig"
+if [[ "${SCENARIO^^}" == C4 ]]; then
+  sed -i 's/^CONFIG_IOMT_SCENARIO_C3=y$/# CONFIG_IOMT_SCENARIO_C3 is not set/' "${SDK}"
+  sed -i 's/^# CONFIG_IOMT_SCENARIO_C4 is not set$/CONFIG_IOMT_SCENARIO_C4=y/' "${SDK}"
+else
+  sed -i 's/^CONFIG_IOMT_SCENARIO_C4=y$/# CONFIG_IOMT_SCENARIO_C4 is not set/' "${SDK}"
+  sed -i 's/^# CONFIG_IOMT_SCENARIO_C3 is not set$/CONFIG_IOMT_SCENARIO_C3=y/' "${SDK}"
+fi
 idf.py "${EXTRA[@]}" build
 
 if [[ "${FLASH:-0}" == "1" ]]; then
