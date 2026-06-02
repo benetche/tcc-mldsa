@@ -10,6 +10,8 @@
 #include "freertos/event_groups.h"
 #include "nvs_flash.h"
 
+#include <string.h>
+
 static const char *TAG = "wifi_mgr";
 static EventGroupHandle_t s_wifi_events;
 #define WIFI_CONNECTED_BIT BIT0

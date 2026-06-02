@@ -6,6 +6,7 @@
 #include "wifi_manager.h"
 
 #include "esp_log.h"
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 

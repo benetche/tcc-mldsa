@@ -5,10 +5,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ESP_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 PORT="${ESPPORT:-/dev/ttyUSB0}"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ -z "${IDF_PATH:-}" ]] || ! command -v idf.py >/dev/null 2>&1; then
-  echo "ESP-IDF não encontrado. Exemplo:"
-  echo "  . \$HOME/esp/esp-idf/export.sh"
-  exit 1
+  # shellcheck disable=SC1091
+  source "${SCRIPT_DIR}/setup-idf-env.sh"
 fi
 
 cd "${ESP_ROOT}"

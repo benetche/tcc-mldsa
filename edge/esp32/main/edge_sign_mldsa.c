@@ -2,6 +2,8 @@
 
 #include "esp_log.h"
 
+#include <string.h>
+
 static const char *TAG = "edge_sign_mldsa";
 
 /**

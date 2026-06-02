@@ -28,11 +28,14 @@ idf.py menuconfig   # IoMT ESP32: cenário C3 ou C4, device_id, intervalo
 ## Build e flash
 
 ```bash
-. $HOME/esp/esp-idf/export.sh
+# Primeira vez: clone + ./install.sh esp32 em ~/esp/esp-idf (ver docs Espressif)
+source ./scripts/setup-idf-env.sh
 export ESPPORT=/dev/ttyUSB0
-./scripts/build-flash-monitor.sh
-# ou: idf.py -p $ESPPORT build flash monitor
+idf.py build
+./scripts/build-flash-monitor.sh   # build + flash + monitor
 ```
+
+**Antes do flash:** edite `main/secrets.h` (senha Wi-Fi real) e rode `sudo usermod -aG dialout $USER` (logout/login).
 
 ## Cenários
 

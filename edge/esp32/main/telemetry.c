@@ -3,6 +3,7 @@
 #include "wifi_manager.h"
 
 #include "esp_heap_caps.h"
+#include "esp_system.h"
 
 static uint32_t s_idle_ticks = 0;
 static uint32_t s_loop_ticks = 0;

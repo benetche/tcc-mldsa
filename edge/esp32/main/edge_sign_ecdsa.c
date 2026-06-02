@@ -34,7 +34,7 @@ static esp_err_t load_or_create_key(mbedtls_pk_context *pk)
             nvs_close(h);
             if (err == ESP_OK) {
                 mbedtls_pk_init(pk);
-                int ret = mbedtls_pk_parse_key(pk, buf, len, NULL, 0);
+                int ret = mbedtls_pk_parse_key(pk, buf, len, NULL, 0, NULL, 0);
                 free(buf);
                 return ret == 0 ? ESP_OK : ESP_FAIL;
             }
