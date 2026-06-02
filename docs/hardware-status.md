@@ -5,7 +5,7 @@ Atualizado na branch `feat/f1-pilar-1-infra` (P1.2 concluído).
 | Dispositivo | Status | Cenários | Notas |
 |-------------|--------|----------|-------|
 | **Raspberry Pi 4 Model B** | Validado C1/C2 | C1, C2 | deploy `deploy-to-pi.sh`; smoke C1/C2; FHIR/benchmark no Pi |
-| **ESP32-D** | Conectado (CH340 `/dev/ttyUSB0`) | C3, C4 | Firmware ESP-IDF em `edge/esp32/`; C3 ECDSA + MQTT |
+| **ESP32-D** | Validado C3 (lab) | C3, C4 | ESP-IDF; ECDSA on-device; MQTT `<IP_ESP32>`; ponte→Fabric |
 
 ## Raspberry Pi 4 — baseline de laboratório (P1.2)
 
@@ -37,7 +37,17 @@ cd edge/raspberry-pi
 
 ## ESP32-D
 
-Pendente de hardware. C3/C4 documentados em `edge/esp32/README.md`.
+| Item | Valor |
+|------|--------|
+| Porta USB | `/dev/ttyUSB0` (CH340) |
+| IP (lab) | `<IP_ESP32>` |
+| Broker MQTT | `mqtt://<IP_PC>:1883` |
+| C3 | ECDSA-P256 on-device (`esp32_direct`) |
+| C4 | ML-DSA stub → `esp32_payload_only` via relay MQTT |
+| Smoke E2E | `edge/esp32/scripts/smoke-e2e-c3.sh` |
+| Benchmark | `edge/esp32/scripts/run-esp32-benchmark.sh` |
+
+Ver `edge/esp32/README.md` e `edge/esp32/docs/PONTE-MQTT-FABRIC.md`.
 
 ## Deploy remoto (sem git no Pi)
 

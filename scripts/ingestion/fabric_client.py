@@ -152,3 +152,97 @@ def register_fhir_observation(
     )
     ledger = json.loads(q.stdout.strip())
     return latency_ms, ledger
+
+
+def register_edge_observation(
+    cfg: FabricConfig,
+    obs_id: str,
+    device_id: str,
+    payload_hash: str,
+    recorded_at: str,
+    sign_alg: str = "",
+    device_signature: str = "",
+    msp_sign_alg: str = "",
+    msp_signature: str = "",
+) -> tuple[int, dict]:
+    """Invoke RegisterObservation (C3/C4 ESP32 — assinatura na borda + relay)."""
+    tn = cfg.fabric_samples / "test-network"
+    orderer_ca = (
+        tn / "organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
+    )
+    peer1_tls = (
+        tn / "organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt"
+    )
+    peer2_tls = (
+        tn / "organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
+    )
+    args = [
+        obs_id,
+        device_id,
+        payload_hash,
+        recorded_at,
+        sign_alg or "",
+        device_signature or "",
+        msp_sign_alg or "",
+        msp_signature or "",
+    ]
+    body = {"function": "RegisterObservation", "Args": args}
+    env = _peer_env(cfg)
+    host = cfg.peer_endpoint.split(":")[0]
+    if host not in ("localhost", "127.0.0.1"):
+        peer1, peer2, orderer = "peer0.org1.example.com:7051", "peer0.org2.example.com:9051", "orderer.example.com:7050"
+    else:
+        peer1, peer2, orderer = "localhost:7051", "localhost:9051", "localhost:7050"
+
+    start = time.time()
+    subprocess.run(
+        [
+            "peer",
+            "chaincode",
+            "invoke",
+            "-o",
+            orderer,
+            "--ordererTLSHostnameOverride",
+            "orderer.example.com",
+            "--tls",
+            "--cafile",
+            str(orderer_ca),
+            "-C",
+            cfg.channel,
+            "-n",
+            cfg.chaincode,
+            "--peerAddresses",
+            peer1,
+            "--tlsRootCertFiles",
+            str(peer1_tls),
+            "--peerAddresses",
+            peer2,
+            "--tlsRootCertFiles",
+            str(peer2_tls),
+            "-c",
+            json.dumps(body),
+        ],
+        env=env,
+        check=True,
+        capture_output=True,
+    )
+    latency_ms = int((time.time() - start) * 1000)
+    time.sleep(2)
+    q = subprocess.run(
+        [
+            "peer",
+            "chaincode",
+            "query",
+            "-C",
+            cfg.channel,
+            "-n",
+            cfg.chaincode,
+            "-c",
+            json.dumps({"function": "ReadObservation", "Args": [obs_id]}),
+        ],
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return latency_ms, json.loads(q.stdout.strip())

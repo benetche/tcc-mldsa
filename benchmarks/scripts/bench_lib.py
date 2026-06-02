@@ -177,6 +177,113 @@ def fabric_version() -> str:
 
 
 # --------------------------------------------------------------------------
+# ESP32 via ponte MQTT (C3/C4)
+# --------------------------------------------------------------------------
+def _run_esp32_mqtt_benchmark(
+    meta: dict,
+    scenario: dict,
+    load_profile: dict,
+    *,
+    network: str,
+    warmup_tx: int,
+    sample_tx: int,
+    out_dir: Path,
+    id_suffix: str,
+    dry_run: bool,
+    interval_ms: int,
+) -> dict:
+    from esp32_mqtt_bridge import MqttObservationQueue, run_mqtt_listener, submit_observation_to_fabric
+    from fabric_client import FabricConfig
+
+    device_id = os.environ.get("IOMT_DEVICE_ID", "esp32-ward-01")
+    mqtt_host = os.environ.get("MQTT_HOST", "localhost")
+    mqtt_port = int(os.environ.get("MQTT_PORT", "1883"))
+    topic = f"iomt/esp32/{device_id}/observation"
+    via_docker = os.environ.get("MQTT_VIA_DOCKER", "") == "1"
+
+    meta["bridge"] = "mqtt"
+    meta["relay"] = "mqtt"
+    meta["mqtt_topic"] = topic
+    meta["signing_mode_fallback"] = scenario.get("signing_mode_fallback", "")
+
+    obs_q = MqttObservationQueue()
+    run_mqtt_listener(mqtt_host, mqtt_port, topic, obs_q, via_docker=via_docker)
+
+    cfg = FabricConfig.from_env()
+    sampler = ResourceSampler(interval_s=1.0)
+    if not dry_run:
+        sampler.start()
+
+    metrics_fh = (out_dir / "metrics.csv").open("w", encoding="utf-8")
+    metrics_fh.write("tx_index,timestamp,latency_ms,ok,payload_bytes,patient_id,loinc\n")
+
+    latencies: list[float] = []
+    sent = errors = 0
+    total_tx = warmup_tx + sample_tx
+    timeout_s = max(interval_ms / 1000.0 * 3, 15.0)
+    effective_modes: list[str] = []
+
+    for i in range(total_tx):
+        is_warmup = i < warmup_tx
+        obs = obs_q.wait(timeout_s)
+        if obs is None:
+            errors += 1
+            continue
+        if dry_run:
+            if not is_warmup:
+                latencies.append(0.0)
+                sent += 1
+            continue
+        try:
+            lat, ledger, eff_mode = submit_observation_to_fabric(cfg, obs, relay_mode="mqtt")
+            effective_modes.append(eff_mode)
+            ts = datetime.now(timezone.utc).isoformat()
+            if not is_warmup:
+                latencies.append(float(lat))
+                sent += 1
+                phash_len = len(obs.payload_hash.encode("utf-8"))
+                metrics_fh.write(f"{i},{ts},{lat},1,{phash_len},esp32,edge\n")
+        except subprocess.CalledProcessError:
+            if not is_warmup:
+                errors += 1
+
+    metrics_fh.close()
+    sampler.stop()
+    resources = sampler.samples
+    if resources:
+        with (out_dir / "resources.csv").open("w", encoding="utf-8") as rf:
+            rf.write("timestamp,cpu_percent,mem_used_mb,mem_total_mb,load_1m\n")
+            for s in resources:
+                rf.write(
+                    f"{s['ts']},{s['cpu_percent']:.2f},{s['mem_used_mb']:.2f},"
+                    f"{s['mem_total_mb']:.2f},{s.get('load_1m', 0):.2f}\n"
+                )
+
+    meta["signing_mode_effective"] = effective_modes[-1] if effective_modes else meta.get("signing_mode")
+    meta["status"] = "ok" if sent > 0 else "error"
+    meta["finished_at"] = datetime.now(timezone.utc).isoformat()
+    success = sent / max(sent + errors, 1)
+    meta["summary"] = {
+        "sent": sent,
+        "errors": errors,
+        "success_rate": round(success, 4),
+        "latency_ms_avg": round(mean(latencies), 2) if latencies else None,
+        "latency_ms_p50": round(percentile(latencies, 50), 2) if latencies else None,
+        "latency_ms_p95": round(percentile(latencies, 95), 2) if latencies else None,
+        "tps": round(sent / max((latencies and sum(latencies) / 1000.0) or 1, 1), 4)
+        if latencies
+        else None,
+        "avg_payload_bytes": None,
+    }
+    (out_dir / "metadata.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    print(
+        f"[{meta['scenario_id']}/{meta['load_profile']}] ESP32/MQTT sent={sent} err={errors} "
+        f"p95={meta['summary']['latency_ms_p95']}ms → {out_dir}"
+    )
+    return meta
+
+
+# --------------------------------------------------------------------------
 # Execução de um cenário × carga
 # --------------------------------------------------------------------------
 def run_benchmark(
@@ -251,6 +358,21 @@ def run_benchmark(
         )
         print(f"[{scenario_id}/{meta['load_profile']}] hardware_pending (ESP32) → {out_dir}")
         return meta
+
+    # Cenários ESP32: observações via MQTT (assinatura no dispositivo + relay Fabric)
+    if device == "esp32" and bridge == "mqtt":
+        return _run_esp32_mqtt_benchmark(
+            meta,
+            scenario,
+            load_profile,
+            network=network,
+            warmup_tx=warmup_tx,
+            sample_tx=sample_tx,
+            out_dir=out_dir,
+            id_suffix=id_suffix,
+            dry_run=dry_run,
+            interval_ms=interval_ms,
+        )
 
     # Cenários Pi/host: ingestão real via peer CLI
     from fabric_client import FabricConfig, register_fhir_observation

@@ -27,13 +27,26 @@ idf.py menuconfig   # IoMT ESP32: cenário C3 ou C4, device_id, intervalo
 
 ## Build e flash
 
+O comando `idf.py` **só existe depois** de carregar o ESP-IDF. Se o terminal do Cursor mostrar
+`exit code: 127` ou `idf.py: comando não encontrado`, use um dos caminhos abaixo.
+
 ```bash
-# Primeira vez: clone + ./install.sh esp32 em ~/esp/esp-idf (ver docs Espressif)
-source ./scripts/setup-idf-env.sh
+cd edge/esp32
 export ESPPORT=/dev/ttyUSB0
+
+# Opção A (recomendada): wrapper — não precisa de source manual
+./idf.sh build
+./idf.sh -p /dev/ttyUSB0 flash monitor
+
+# Opção B: script all-in-one
+./scripts/build-flash-monitor.sh
+
+# Opção C: source no shell atual, depois idf.py
+source ./scripts/setup-idf-env.sh
 idf.py build
-./scripts/build-flash-monitor.sh   # build + flash + monitor
 ```
+
+Primeira vez: clone + `./install.sh esp32` em `~/esp/esp-idf` (ver docs Espressif).
 
 **Antes do flash:** edite `main/secrets.h` (senha Wi-Fi real) e rode `sudo usermod -aG dialout $USER` (logout/login).
 
@@ -55,12 +68,31 @@ Payload de métricas: [docs/METRICAS-MQTT.md](docs/METRICAS-MQTT.md).
 DO_BUILD=1 ./scripts/validate-esp32.sh   # com ESP-IDF
 ```
 
-Stub estrutural C3/C4 (YAML): `./scripts/validate-c3-c4-stub.sh`.
+### E2E C3 → Fabric (MQTT relay)
 
-## Próximos passos (task 04)
+Pré-requisitos: Fabric baseline UP, Mosquitto no lab, ESP32 flashado (C3).
 
-- [ ] Smoke E2E C3 → Fabric (via Pi/gateway ou cliente mínimo)
-- [ ] C4: integrar liboqs ou documentar `esp32_payload_only`
-- [ ] Benchmarks `run_suite.sh` com hardware real
+```bash
+MQTT_HOST=<IP_PC> ./scripts/smoke-e2e-c3.sh
+```
+
+Detalhes: [docs/PONTE-MQTT-FABRIC.md](docs/PONTE-MQTT-FABRIC.md).
+
+### C4 (stub ML-DSA + relay)
+
+Firmware C4 publica sem assinatura PQC; relay classifica `esp32_payload_only`:
+
+```bash
+MQTT_HOST=<IP_PC> ./scripts/smoke-c4-relay.sh   # rede mldsa
+```
+
+### Benchmarks
+
+```bash
+MQTT_HOST=<IP_PC> ./scripts/run-esp32-benchmark.sh C3 hospital-low
+# ou: export IOMT_ESP32_BRIDGE=mqtt && ./benchmarks/scripts/run_suite.sh --scenario C3 --samples 30
+```
+
+Payload MQTT usa `recorded_at` em **RFC3339** (UTC) após SNTP no Wi-Fi.
 
 Ver [cenarios-experimentais.md](../../.cursor/context/cenarios-experimentais.md).

@@ -59,6 +59,20 @@ python3 -c "import yaml" 2>/dev/null || pip install -q -r "${ROOT}/benchmarks/re
 export REPO_ROOT="${ROOT}"
 mkdir -p "${RESULTS_DIR}"
 
+# C3/C4: ponte MQTT → Fabric (ESP32 assina ou stub C4 + relay)
+needs_esp32=0
+for sc in "${SCENARIOS[@]}"; do
+  sc_u="${sc^^}"
+  [[ "${sc_u}" == C3 || "${sc_u}" == C4 ]] && needs_esp32=1
+done
+if [[ "${needs_esp32}" -eq 1 ]]; then
+  export IOMT_ESP32_BRIDGE="${IOMT_ESP32_BRIDGE:-mqtt}"
+  export MQTT_HOST="${MQTT_HOST:-localhost}"
+  export MQTT_PORT="${MQTT_PORT:-1883}"
+  export IOMT_DEVICE_ID="${IOMT_DEVICE_ID:-esp32-ward-01}"
+  echo "[run_suite] ESP32 bridge=${IOMT_ESP32_BRIDGE} mqtt=${MQTT_HOST}:${MQTT_PORT} device=${IOMT_DEVICE_ID}"
+fi
+
 echo "[run_suite] cenários: ${SCENARIOS[*]} | cargas: ${LOADS[*]} ${DRY_RUN}"
 run_count=0
 for sc in "${SCENARIOS[@]}"; do

@@ -5,17 +5,45 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "esp_netif.h"
+#include "esp_sntp.h"
 #include "esp_wifi.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
+#include "freertos/task.h"
 #include "nvs_flash.h"
 
 #include <string.h>
+#include <sys/time.h>
+#include <time.h>
 
 static const char *TAG = "wifi_mgr";
 static EventGroupHandle_t s_wifi_events;
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT BIT1
+
+/** Epoch mínimo plausível (2021-01-01 UTC) após SNTP. */
+#define SNTP_MIN_EPOCH 1609459200
+
+static bool s_time_synced;
+
+static void wifi_sntp_sync(void)
+{
+    esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    esp_sntp_setservername(0, "pool.ntp.org");
+    esp_sntp_init();
+
+    for (int i = 0; i < 20; i++) {
+        time_t now = 0;
+        time(&now);
+        if (now >= SNTP_MIN_EPOCH) {
+            s_time_synced = true;
+            ESP_LOGI(TAG, "SNTP sincronizado (epoch=%ld)", (long)now);
+            return;
+        }
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
+    ESP_LOGW(TAG, "SNTP timeout — recorded_at pode usar relógio não sincronizado");
+}
 
 static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id, void *data)
 {
@@ -69,10 +97,16 @@ esp_err_t wifi_manager_init_and_connect(void)
 
     if (bits & WIFI_CONNECTED_BIT) {
         ESP_LOGI(TAG, "Wi-Fi conectado (SSID=%s)", IOMT_SECRETS_WIFI_SSID);
+        wifi_sntp_sync();
         return ESP_OK;
     }
     ESP_LOGE(TAG, "Falha ao conectar Wi-Fi em 30s");
     return ESP_ERR_TIMEOUT;
+}
+
+bool wifi_manager_time_synced(void)
+{
+    return s_time_synced;
 }
 
 int8_t wifi_manager_rssi_dbm(void)

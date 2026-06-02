@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 static const char *TAG = "observation";
 
@@ -41,11 +42,25 @@ void observation_generate(iomt_observation_t *obs)
     ESP_LOGD(TAG, "obs=%s hash=%s", obs->observation_id, obs->payload_hash);
 }
 
+void observation_recorded_at_rfc3339(char *buf, size_t buflen)
+{
+    time_t now = 0;
+    struct tm tm_utc = {0};
+    time(&now);
+    if (gmtime_r(&now, &tm_utc) != NULL) {
+        strftime(buf, buflen, "%Y-%m-%dT%H:%M:%SZ", &tm_utc);
+    } else {
+        snprintf(buf, buflen, "1970-01-01T00:00:00Z");
+    }
+}
+
 int observation_format_mqtt(char *buf, size_t buflen, const iomt_observation_t *obs,
                             const iomt_sign_result_t *sign)
 {
     const char *sign_alg = sign->err == ESP_OK ? sign->alg : IOMT_SIGN_ALG_TARGET;
     const char *sig = sign->err == ESP_OK ? sign->signature_b64 : "";
+    char recorded_at[32];
+    observation_recorded_at_rfc3339(recorded_at, sizeof(recorded_at));
 
     return snprintf(
         buf, buflen,
@@ -56,12 +71,11 @@ int observation_format_mqtt(char *buf, size_t buflen, const iomt_observation_t *
         "\"observation_id\":\"%s\","
         "\"device_id\":\"%s\","
         "\"payload_hash\":\"%s\","
-        "\"recorded_at\":%lld,"
+        "\"recorded_at\":\"%s\","
         "\"signAlg\":\"%s\","
         "\"deviceSignature\":\"%s\","
         "\"vital\":%s"
         "}",
         IOMT_SCENARIO_ID, IOMT_NETWORK, IOMT_SIGNING_MODE, obs->observation_id,
-        IOMT_DEVICE_ID, obs->payload_hash, (long long)(esp_timer_get_time() / 1000000),
-        sign_alg, sig, obs->vital_json);
+        IOMT_DEVICE_ID, obs->payload_hash, recorded_at, sign_alg, sig, obs->vital_json);
 }

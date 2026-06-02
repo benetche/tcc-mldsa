@@ -35,5 +35,8 @@ fi
 ROOT="$(cd "${ESP_ROOT}/../.." && pwd)"
 "${ROOT}/edge/esp32/scripts/validate-c3-c4-stub.sh" | head -5
 test -f "${ESP_ROOT}/main/main.c" && echo "[validate-esp32] firmware main.c presente"
+test -x "${ESP_ROOT}/scripts/smoke-e2e-c3.sh" && echo "[validate-esp32] smoke-e2e-c3.sh presente"
+test -f "${ROOT}/scripts/ingestion/esp32_mqtt_bridge.py" && echo "[validate-esp32] ponte MQTT→Fabric presente"
 
+echo "[validate-esp32] E2E (com hardware): MQTT_HOST=<broker> ./scripts/smoke-e2e-c3.sh"
 echo "[validate-esp32] concluído"

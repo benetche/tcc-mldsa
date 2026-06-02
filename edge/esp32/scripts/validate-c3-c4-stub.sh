@@ -17,7 +17,7 @@ cat <<EOF
   "status": "firmware_scaffold",
   "scenarios": ["C3", "C4"],
   "device": "esp32",
-  "note": "Firmware ESP-IDF presente; C3 ECDSA on-device; C4 ML-DSA pendente; E2E Fabric pendente.",
+  "note": "C3 ECDSA on-device + ponte MQTT→Fabric; C4 ML-DSA on-device pendente (esp32_payload_only via relay).",
   "expected_signing": {"C3": "ECDSA-P256", "C4": "ML-DSA-65"}
 }
 EOF
