@@ -29,7 +29,7 @@ idf.py menuconfig   # IoMT ESP32: cenário C3 ou C4, device_id, intervalo
 
 ## Build e flash
 
-O comando `idf.py` **só existe depois** de carregar o ESP-IDF. Se o terminal do Cursor mostrar
+O comando `idf.py` **só existe depois** de carregar o ESP-IDF. Se o terminal mostrar
 `exit code: 127` ou `idf.py: comando não encontrado`, use um dos caminhos abaixo.
 
 ```bash

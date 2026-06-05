@@ -60,11 +60,6 @@ Sem credenciais ou IPs reais no repositório — ver [laboratorio-local.md](labo
 - **MIMIC-IV:** dataset fora do git; fixtures sintéticas para CI e desenvolvimento sem credencial PhysioNet.
 - **Baseline e mldsa:** não subir as duas redes simultaneamente (mesmas portas).
 
-## Próximos passos sugeridos
-
-1. Consolidar capítulos da monografia a partir de [relatorio-pqc-iomt.md](../benchmarks/reports/relatorio-pqc-iomt.md) e artefatos gerados por `analyze.py`.
-2. Publicar repositório após revisão de histórico Git (IPs antigos em commits anteriores do `.cursor/`, se aplicável).
-3. Manter `.cursor/` apenas local para agentes IDE (gitignored).
 
 ## Documentação relacionada
 

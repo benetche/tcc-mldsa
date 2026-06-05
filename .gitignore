@@ -1,7 +1,5 @@
-# Cursor (agentes, roadmap, tasks — uso local; não publicar)
 .cursor/
 
-# Credenciais de laboratório (SSH, Wi-Fi, MQTT) — nunca versionar
 edge/raspberry-pi/lab.env
 edge/raspberry-pi/config.env
 edge/esp32/main/secrets.h
@@ -14,7 +12,6 @@ wallet/
 organizations/*/peerOrganizations/*/users/**/msp/keystore/*
 !**/.gitkeep
 
-# Monografia LaTeX (privada — não publicar no repositório remoto)
 monografia/
 
 # jq baixado localmente (ensure-jq.sh)
