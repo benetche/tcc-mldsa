@@ -1,6 +1,6 @@
 # Arquitetura experimental
 
-Topologia do TCC: borda IoMT (Pi + ESP32), rede Hyperledger Fabric permissionada e ingestão FHIR. Alinhada a [decisoes-stack.md](decisoes-stack.md).
+Topologia do TCC: borda IoMT (Pi + ESP32), rede Hyperledger Fabric permissionada e ingestão FHIR.
 
 ## Visão geral
 

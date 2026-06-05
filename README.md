@@ -36,8 +36,6 @@ monitoring/      # Stack opcional de observabilidade
 docs/            # Documentação de referência do TCC
 ```
 
-A pasta `.cursor/` (agentes e roadmap internos do IDE) **não é versionada**.
-
 ## Início rápido
 
 ### Rede Fabric (baseline)

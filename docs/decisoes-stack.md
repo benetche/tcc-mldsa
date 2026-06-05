@@ -1,6 +1,6 @@
 # Decisões de stack — TCC ML-DSA + Fabric + IoMT
 
-Registro das escolhas técnicas que sustentam implementação, benchmarks e monografia. Estado de entrega: [estado-do-projeto.md](./estado-do-projeto.md).
+Registro das escolhas técnicas que sustentam implementação, benchmarks e monografia. 
 
 ## Resumo
 
